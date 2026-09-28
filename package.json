@@ -1,0 +1,52 @@
+{
+  "name": "relentless-ci-typescript",
+  "version": "0.1.0",
+  "description": "A strict, framework-neutral TypeScript starting point",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0 || ^26.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "relentless-example": "dist/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint src tests vitest.config.ts eslint.config.mjs",
+    "format:check": "prettier --check src tests *.json *.ts *.mjs",
+    "mutation": "stryker run",
+    "deadcode": "knip"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/vitest-runner": "^10.0.0",
+    "@types/node": "^26.6.3",
+    "@vitest/coverage-v8": "^5.0.2",
+    "eslint": "^10.11.0",
+    "eslint-plugin-sonarjs": "^4.2.2",
+    "fast-check": "^4.10.2",
+    "knip": "^6.38.0",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.2"
+  },
+  "overrides": {
+    "typed-rest-client": {
+      "qs": "6.16.0"
+    }
+  }
+}
