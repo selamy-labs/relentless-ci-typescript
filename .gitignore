@@ -9,3 +9,5 @@ coverage/
 
 .stryker-tmp/
 *.tgz
+
+.quality-build/
