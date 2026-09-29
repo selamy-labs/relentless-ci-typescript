@@ -1,7 +1,9 @@
-import { mkdirSync, realpathSync, rmSync } from "node:fs";
-import { join, relative, resolve, sep } from "node:path";
+import { rmSync } from "node:fs";
+import { join } from "node:path";
 import { z } from "zod";
 import { readJson } from "./security.js";
+import { prepareDiagnostics } from "./runtime-diagnostics.js";
+import { testSources, verifyInventory } from "./test-inventory.js";
 
 const text = z.string().min(1);
 const positive = z.number().int().positive();
@@ -35,15 +37,8 @@ function file(root: string): string {
 }
 
 export function prepareTests(root: string): void {
-  mkdirSync(join(root, ".quality-results"), { recursive: true });
+  prepareDiagnostics(root);
   rmSync(file(root), { force: true });
-}
-
-function inventory(paths: string[]): string {
-  if (new Set(paths).size !== paths.length) {
-    throw new Error("duplicate test suite paths");
-  }
-  return JSON.stringify([...paths].sort());
 }
 
 export function verifyTestReport(
@@ -52,15 +47,11 @@ export function verifyTestReport(
   root: string,
 ): void {
   const result = report.parse(value);
-  const actual = result.testResults.map((item) =>
-    realpathSync(resolve(root, item.name)),
+  verifyInventory(
+    result.testResults.map((item) => item.name),
+    expected,
+    root,
   );
-  if (
-    inventory(actual) !==
-    inventory(expected.map((name) => realpathSync(resolve(root, name))))
-  ) {
-    throw new Error("test suite inventory is incomplete");
-  }
   const count = result.testResults.reduce(
     (total, item) => total + item.assertionResults.length,
     0,
@@ -77,8 +68,5 @@ export function verifyTestReport(
 }
 
 export function verifyTests(root: string, sources: string[]): void {
-  const expected = sources.filter((path) =>
-    /^tests\/.*\.test\.ts$/u.test(relative(root, path).split(sep).join("/")),
-  );
-  verifyTestReport(readJson(file(root)), expected, root);
+  verifyTestReport(readJson(file(root)), testSources(root, sources), root);
 }

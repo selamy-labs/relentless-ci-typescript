@@ -6,6 +6,7 @@ import { runNpm } from "../quality/commands.js";
 import { verifySecurity } from "../quality/security.js";
 import { verifySources, verifyTracked } from "../quality/source-scope.js";
 import { prepareTests, verifyTests } from "../quality/test-report.js";
+import { verifyRuntimeDiagnostics } from "../quality/runtime-diagnostics.js";
 import { verify } from "../quality/pipeline.js";
 
 vi.mock("../quality/commands.js", () => ({ runNpm: vi.fn() }));
@@ -22,6 +23,9 @@ vi.mock("../quality/source-scope.js", () => ({
 vi.mock("../quality/test-report.js", () => ({
   prepareTests: vi.fn(),
   verifyTests: vi.fn(),
+}));
+vi.mock("../quality/runtime-diagnostics.js", () => ({
+  verifyRuntimeDiagnostics: vi.fn(),
 }));
 const roots: string[] = [];
 function repository(checks: unknown, timeout: unknown = 5000): string {
@@ -52,6 +56,9 @@ test.each([1, 5000])(
     vi.mocked(verifyTests).mockImplementation(() => {
       received.push("test integrity");
     });
+    vi.mocked(verifyRuntimeDiagnostics).mockImplementation(() => {
+      received.push("runtime diagnostics");
+    });
     vi.mocked(verifySecurity).mockImplementation(() => {
       received.push("security");
     });
@@ -60,11 +67,13 @@ test.each([1, 5000])(
       "first argument with spaces",
       "second",
       "test integrity",
+      "runtime diagnostics",
       "security",
       "run mutation",
     ]);
     expect(prepareTests).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifyTests).toHaveBeenCalledExactlyOnceWith(root, []);
+    expect(verifyRuntimeDiagnostics).toHaveBeenCalledExactlyOnceWith(root, []);
     expect(verifySources).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifyTracked).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifySecurity).toHaveBeenCalledExactlyOnceWith(root, timeout);
@@ -128,6 +137,18 @@ test("failed test receipt stops security and mutation", () => {
   expect(() => {
     verify(root);
   }).toThrow("incomplete tests");
+  expect(verifySecurity).not.toHaveBeenCalled();
+  expect(runNpm).toHaveBeenCalledExactlyOnceWith(["first"], root, 5000);
+});
+
+test("failed runtime diagnostics stop security and mutation", () => {
+  vi.mocked(verifyRuntimeDiagnostics).mockImplementationOnce(() => {
+    throw new Error("uncaught diagnostics");
+  });
+  const root = repository([["first"]]);
+  expect(() => {
+    verify(root);
+  }).toThrow("uncaught diagnostics");
   expect(verifySecurity).not.toHaveBeenCalled();
   expect(runNpm).toHaveBeenCalledExactlyOnceWith(["first"], root, 5000);
 });

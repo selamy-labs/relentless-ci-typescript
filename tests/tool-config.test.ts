@@ -24,6 +24,14 @@ test("native test configuration enrolls all authored executable roots", () => {
   expect(vitestConfig.test.allowOnly).toBe(false);
   expect(vitestConfig.test.passWithNoTests).toBe(false);
   expect(vitestConfig.test.retry).toBe(0);
+  expect(vitestConfig.test.dangerouslyIgnoreUnhandledErrors).toBe(false);
+  expect(vitestConfig.test.setupFiles).toEqual(["tests/runtime-setup.ts"]);
+  expect(vitestConfig.test.reporters).toEqual([
+    "default",
+    "json",
+    "./quality/diagnostics-reporter.ts",
+  ]);
+  expect(vitestConfig.test.outputFile).toBe(".quality-results/tests.json");
   expect(vitestConfig.test.include).toEqual(["tests/**/*.test.ts"]);
   expect(vitestConfig.test.coverage.include).toEqual([
     "src/**/*.ts",

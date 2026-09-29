@@ -199,7 +199,10 @@ test("preparation deletes stale receipt and creates only the expected directory"
   const report = join(path, ".quality-results", "tests.json");
   expect(existsSync(join(path, ".quality-results"))).toBe(true);
   writeFileSync(report, JSON.stringify(complete()));
+  const diagnostic = join(path, ".quality-results", "diagnostics.json");
+  writeFileSync(diagnostic, "stale");
   prepareTests(path);
+  expect(existsSync(diagnostic)).toBe(false);
   expect(existsSync(report)).toBe(false);
 });
 

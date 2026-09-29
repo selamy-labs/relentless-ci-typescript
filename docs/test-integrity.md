@@ -1,8 +1,10 @@
 # Test discovery and completed results
 
 The full verifier removes the previous test receipt before running its check
-registry. The coverage command runs Vitest's default and JSON reporters and
-writes a new `.quality-results/tests.json`. A missing or malformed receipt
+registry. The coverage command retains all configured reporters: default, JSON
+and the owned runtime diagnostics reporter. It writes fresh
+`.quality-results/tests.json` and `.quality-results/diagnostics.json` receipts.
+A missing or malformed receipt
 fails, even when the runner exits successfully.
 
 The verifier independently discovers `tests/**/*.test.ts` from the enrolled
@@ -39,3 +41,22 @@ Remediation is to restore the missing suite, remove focus/skip/todo markers,
 repair failures or fix the reporter configuration. Do not reduce discovery scope
 or accept incomplete receipts to make verification pass. Hosted policy approval
 and the runtime matrix remain pending.
+
+Runtime warnings are errors. The setup adapter installs a distinct process warning
+listener for each test file, raises the original warning, drains queued immediate
+diagnostics and removes only its own listener. Cleanup also runs when draining
+or finalizer registration fails. Unhandled exceptions and rejected promises are
+captured by Vitest. The configured `dangerouslyIgnoreUnhandledErrors` is false.
+
+Vitest 5.0.2's JSON reporter can still report successful tests after an unhandled
+error. The native `onTestRunEnd` reporter independently records the reason, actual
+unhandled error count and module paths. The verifier requires reason `passed`,
+zero errors and the exact canonical enrolled file inventory. Initialization and
+full-verifier preparation both delete stale diagnostic evidence. Missing,
+malformed, duplicate, incomplete and error-bearing receipts fail. Native probes
+also deliberately set the ignore option true: even though exit status and JSON
+success then pass, the independent diagnostic receipt rejects the bypass.
+
+This detects warnings and errors observed during the test lifecycle. Resource
+leak qualification is a separate remaining family. These local probes do not
+prove hosted platform policy or the complete runtime matrix.

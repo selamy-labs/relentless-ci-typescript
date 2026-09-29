@@ -21,6 +21,10 @@
     "allowOnly": false,
     "passWithNoTests": false,
     "retry": 0,
-    "maxWorkers": 2
+    "maxWorkers": 2,
+    "setupFiles": ["tests/runtime-setup.ts"],
+    "reporters": ["default", "json", "./quality/diagnostics-reporter.ts"],
+    "outputFile": ".quality-results/tests.json",
+    "dangerouslyIgnoreUnhandledErrors": false
   }
 }
