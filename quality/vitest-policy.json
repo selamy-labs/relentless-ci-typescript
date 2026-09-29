@@ -20,6 +20,7 @@
     },
     "allowOnly": false,
     "passWithNoTests": false,
-    "retry": 0
+    "retry": 0,
+    "maxWorkers": 2
   }
 }

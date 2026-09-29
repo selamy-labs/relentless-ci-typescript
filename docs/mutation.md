@@ -4,9 +4,16 @@ After `npm ci`, run `npm run mutation`. This builds the example and checker,
 executes every configured Stryker mutant, and validates raw events. The same
 command is intended for local and hosted verification.
 
-The scope is all TypeScript in `src/` and `quality/`. Tests are exercised rather
-than mutated. There are no operator or equivalent-mutant exclusions. Incremental
-reuse is disabled. Stryker works in its isolated sandbox.
+The scope is all TypeScript in `src/` and `quality/`, plus the executable root
+Vitest/ESLint configuration and dependency-policy entry points. Tests are
+exercised rather than mutated. There are no operator or equivalent-mutant
+exclusions. Incremental reuse is disabled. Stryker works in its isolated sandbox.
+
+The native Vitest runner selects related tests through its module graph. Probes
+that exercise executable configuration import and pass that config directly to
+the analyzer, so mutation of the config enrolls the probes and changes what they
+verify. Filesystem-only automatic configuration loading does not establish that
+dependency. Separate native CLI probes also verify the required commands.
 
 Stryker's normal score can credit timeouts. Our additional checker accepts only
 raw `Killed` outcomes. `Timeout`, `RuntimeError`, `CompileError`, `NoCoverage`,

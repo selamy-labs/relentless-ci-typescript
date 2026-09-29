@@ -47,5 +47,31 @@
         }
       ]
     }
+  },
+  {
+    "files": ["tests/**/*.ts"],
+    "rules": {
+      "vitest/no-focused-tests": "error",
+      "vitest/no-disabled-tests": "error",
+      "vitest/warn-todo": "error",
+      "vitest/no-import-node-test": "error",
+      "vitest/no-test-prefixes": "error",
+      "vitest/no-commented-out-tests": "error",
+      "no-restricted-syntax": [
+        "error",
+        {
+          "selector": "MemberExpression:matches([property.name=/^(fails|skipIf|runIf)$/],[property.value=/^(fails|skipIf|runIf)$/])",
+          "message": "Tests must run unconditionally and pass normally."
+        },
+        {
+          "selector": "Property:matches([key.name=/^(retry|repeats)$/],[key.value=/^(retry|repeats)$/]):not([value.type='Literal'][value.value=0])",
+          "message": "Test retries and repetitions must remain zero."
+        },
+        {
+          "selector": "Property:matches([key.name=/^(only|skip|todo|fails)$/],[key.value=/^(only|skip|todo|fails)$/]):not([value.type='Literal'][value.value=false])",
+          "message": "Test focus, suppression and expected failure options are forbidden."
+        }
+      ]
+    }
   }
 ]
