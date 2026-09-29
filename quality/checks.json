@@ -4,5 +4,6 @@
   ["run", "lint"],
   ["run", "format:check"],
   ["run", "deadcode"],
+  ["run", "architecture"],
   ["run", "coverage"]
 ]

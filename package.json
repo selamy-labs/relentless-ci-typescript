@@ -30,7 +30,8 @@
     "deadcode": "knip",
     "scope": "tsc -p tsconfig.quality.json && node .quality-build/quality/check-source-main.js",
     "verify": "npm ci --ignore-scripts && npm run verify:installed",
-    "verify:installed": "tsc -p tsconfig.quality.json && node .quality-build/quality/verify-main.js"
+    "verify:installed": "tsc -p tsconfig.quality.json && node .quality-build/quality/verify-main.js",
+    "architecture": "depcruise --no-ignore-known --no-cache --config quality/architecture.json --output-type err-long src tests quality vitest.config.ts eslint.config.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -38,6 +39,7 @@
     "@stryker-mutator/vitest-runner": "^10.0.0",
     "@types/node": "^26.6.3",
     "@vitest/coverage-v8": "^5.0.2",
+    "dependency-cruiser": "18.4.0",
     "eslint": "^10.11.0",
     "eslint-plugin-sonarjs": "^4.2.2",
     "fast-check": "^4.10.2",

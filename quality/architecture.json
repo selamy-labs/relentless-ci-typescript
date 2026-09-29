@@ -1,0 +1,61 @@
+{
+  "forbidden": [
+    {
+      "name": "no-cycles",
+      "severity": "error",
+      "from": {},
+      "to": {
+        "circular": true
+      }
+    },
+    {
+      "name": "no-unresolved",
+      "severity": "error",
+      "from": {},
+      "to": {
+        "couldNotResolve": true
+      }
+    },
+    {
+      "name": "no-undeclared",
+      "severity": "error",
+      "from": {},
+      "to": {
+        "dependencyTypes": ["npm-no-pkg", "npm-unknown"]
+      }
+    },
+    {
+      "name": "no-dev-in-production",
+      "severity": "error",
+      "from": {
+        "path": "^src/"
+      },
+      "to": {
+        "dependencyTypes": ["npm-dev"]
+      }
+    },
+    {
+      "name": "no-tooling-in-production",
+      "severity": "error",
+      "from": {
+        "path": "^src/"
+      },
+      "to": {
+        "path": "^(tests|quality)/|^(vitest[.]config[.]ts|eslint[.]config[.]mjs)$"
+      }
+    }
+  ],
+  "options": {
+    "doNotFollow": {
+      "path": "(^|/)node_modules/"
+    },
+    "tsPreCompilationDeps": true,
+    "tsConfig": {
+      "fileName": "tsconfig.json"
+    },
+    "enhancedResolveOptions": {
+      "conditionNames": ["import", "node", "default"],
+      "exportsFields": ["exports"]
+    }
+  }
+}
