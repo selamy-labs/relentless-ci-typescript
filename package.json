@@ -29,6 +29,7 @@
     "mutation": "npm run build && tsc -p tsconfig.quality.json && stryker run && node .quality-build/quality/check-mutation-main.js",
     "deadcode": "knip",
     "scope": "tsc -p tsconfig.quality.json && node .quality-build/quality/check-source-main.js",
+    "hygiene": "tsc -p tsconfig.quality.json && node .quality-build/quality/hygiene-main.js",
     "verify": "npm run dependency-policy && npm ci --ignore-scripts && npm run verify:installed",
     "verify:installed": "tsc -p tsconfig.quality.json && node .quality-build/quality/verify-main.js",
     "architecture": "depcruise --no-ignore-known --no-cache --config quality/architecture.json --output-type err-long src tests quality vitest.config.ts eslint.config.mjs dependency-policy.mjs dependency-main.mjs",

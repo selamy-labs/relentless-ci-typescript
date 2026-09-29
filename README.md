@@ -54,6 +54,7 @@ the example library with your own application.
 - [Secret, vulnerability and static security scans](docs/security.md)
 - [Dependency and architecture boundaries](docs/architecture.md)
 - [Type and lint suppression policy](docs/lint-policy.md)
+- [Portable repository paths and text](docs/repository-hygiene.md)
 - [Policy inspirations and chosen thresholds](docs/policy-provenance.md)
 
 Fix the underlying defect and rerun the full command. Do not shrink source
