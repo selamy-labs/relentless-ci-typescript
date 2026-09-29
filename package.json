@@ -32,7 +32,8 @@
     "verify": "npm run dependency-policy && npm ci --ignore-scripts && npm run verify:installed",
     "verify:installed": "tsc -p tsconfig.quality.json && node .quality-build/quality/verify-main.js",
     "architecture": "depcruise --no-ignore-known --no-cache --config quality/architecture.json --output-type err-long src tests quality vitest.config.ts eslint.config.mjs dependency-policy.mjs dependency-main.mjs",
-    "dependency-policy": "node dependency-main.mjs"
+    "dependency-policy": "node dependency-main.mjs",
+    "package:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/package-main.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -46,6 +47,7 @@
     "fast-check": "^4.10.2",
     "knip": "^6.38.0",
     "prettier": "^3.9.9",
+    "tar": "7.5.22",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0",
     "vitest": "^5.0.2",

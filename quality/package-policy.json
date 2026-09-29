@@ -1,0 +1,21 @@
+{
+  "compressedBytes": 65536,
+  "tarBytes": 524288,
+  "unpackedBytes": 262144,
+  "fileMode": 420,
+  "files": [
+    "LICENSE",
+    "README.md",
+    "package.json",
+    "dist/cli.js",
+    "dist/cli.d.ts",
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/main.js",
+    "dist/main.d.ts",
+    "dist/normalization.js",
+    "dist/normalization.d.ts",
+    "dist/validation.js",
+    "dist/validation.d.ts"
+  ]
+}

@@ -1,6 +1,7 @@
 [
   ["run", "dependency-policy"],
   ["run", "build"],
+  ["run", "package:check"],
   ["run", "typecheck"],
   ["run", "lint"],
   ["run", "format:check"],
