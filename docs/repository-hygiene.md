@@ -19,10 +19,10 @@ than an exact model of every filesystem's Unicode comparison rules.
 
 The initial product and documentation are text-only. The protected file-kind
 inventory permits TypeScript, executable MJS, JSON, Markdown, TOML, locks, YAML,
-TXT and ignore-policy text, plus LICENSE, .gitignore and .npmrc. Adding binary
-assets, native extensions or another programming language needs explicit scope
-and analyzer enrollment before the gate accepts them. This avoids silently
-admitting new artifact classes that the initial template cannot check.
+TXT and ignore-policy text, plus LICENSE, CODEOWNERS, .gitignore and .npmrc.
+Adding binary assets, native extensions or another programming language needs
+explicit scope and analyzer enrollment before the gate accepts them. This avoids
+silently admitting new artifact classes that the initial template cannot check.
 
 Every enrolled file must decode as UTF-8 without NUL bytes. Standard Git
 conflict marker lines, including ancestor markers and larger marker widths,

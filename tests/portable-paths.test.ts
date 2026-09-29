@@ -135,7 +135,7 @@ test.each([
   }).not.toThrow();
 });
 
-test.each(["LICENSE", ".gitignore", ".npmrc"])(
+test.each(["LICENSE", "CODEOWNERS", ".gitignore", ".npmrc"])(
   "enrolls special text name %s",
   (name) => {
     expect(() => {

@@ -37,6 +37,11 @@ analysis receipts are retained for seven days. Daily runs repeat the same checks
 against main to detect newly disclosed dependency vulnerabilities.
 
 Native local probes establish scanner behavior and aggregate-state rejection.
-The workflow has not yet run on GitHub; runtime matrices and required platform
-protections remain unverified until publication and live readback. Local scan
-success does not prove trusted policy approval or remote branch protection.
+The published `main` revision `3b43532` passed its first hosted run across all
+three full Node analyses and nine installed-behavior jobs. The protected branch
+strictly requires the aggregate `Relentless CI gate` from the GitHub Actions
+App. This is interim enforcement: a dedicated trusted-policy check, source-bound
+maintainer rationale, and live bypass probes remain outstanding. The
+`CODEOWNERS` file assigns the whole repository, including `.github`, to the two
+current administrators. Code-owner review is not enforced until the file is on
+protected `main` and that branch's review setting is enabled and read back.

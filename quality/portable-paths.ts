@@ -15,7 +15,7 @@ const textExtensions = new Set([
   ".txt",
   ".ignore",
 ]);
-const textNames = new Set(["LICENSE", ".gitignore", ".npmrc"]);
+const textNames = new Set(["LICENSE", "CODEOWNERS", ".gitignore", ".npmrc"]);
 
 function component(name: string): void {
   if (name.length === 0 || forbidden.test(name) || ending.test(name)) {
