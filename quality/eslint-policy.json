@@ -16,7 +16,26 @@
     }
   },
   {
+    "linterOptions": {
+      "noInlineConfig": true,
+      "reportUnusedDisableDirectives": "error",
+      "reportUnusedInlineConfigs": "error"
+    },
     "rules": {
+      "no-console": "error",
+      "no-warning-comments": [
+        "error",
+        { "terms": ["todo", "fixme", "xxx"], "location": "anywhere" }
+      ],
+      "@typescript-eslint/ban-ts-comment": [
+        "error",
+        {
+          "ts-ignore": true,
+          "ts-nocheck": true,
+          "ts-expect-error": true,
+          "ts-check": false
+        }
+      ],
       "complexity": ["error", 10],
       "sonarjs/cognitive-complexity": ["error", 5],
       "max-lines": [
