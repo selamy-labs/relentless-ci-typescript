@@ -1,4 +1,4 @@
-# Relentless CI — Typescript
+# Relentless CI — TypeScript
 
 A framework-neutral starting point for a small typed library and JSON CLI,
 with strict quality checks that also test their executable verifiers.
