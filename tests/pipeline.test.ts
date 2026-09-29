@@ -5,6 +5,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { runNpm } from "../quality/commands.js";
 import { verifySecurity } from "../quality/security.js";
 import { verifySources, verifyTracked } from "../quality/source-scope.js";
+import { prepareTests, verifyTests } from "../quality/test-report.js";
 import { verify } from "../quality/pipeline.js";
 
 vi.mock("../quality/commands.js", () => ({ runNpm: vi.fn() }));
@@ -15,8 +16,12 @@ vi.mock("../quality/security.js", async () => {
   return { ...actual, verifySecurity: vi.fn() };
 });
 vi.mock("../quality/source-scope.js", () => ({
-  verifySources: vi.fn(),
+  verifySources: vi.fn(() => []),
   verifyTracked: vi.fn(),
+}));
+vi.mock("../quality/test-report.js", () => ({
+  prepareTests: vi.fn(),
+  verifyTests: vi.fn(),
 }));
 const roots: string[] = [];
 function repository(checks: unknown, timeout: unknown = 5000): string {
@@ -44,6 +49,9 @@ test.each([1, 5000])(
     vi.mocked(runNpm).mockImplementation((args) => {
       received.push(args.join(" "));
     });
+    vi.mocked(verifyTests).mockImplementation(() => {
+      received.push("test integrity");
+    });
     vi.mocked(verifySecurity).mockImplementation(() => {
       received.push("security");
     });
@@ -51,9 +59,12 @@ test.each([1, 5000])(
     expect(received).toEqual([
       "first argument with spaces",
       "second",
+      "test integrity",
       "security",
       "run mutation",
     ]);
+    expect(prepareTests).toHaveBeenCalledExactlyOnceWith(root);
+    expect(verifyTests).toHaveBeenCalledExactlyOnceWith(root, []);
     expect(verifySources).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifyTracked).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifySecurity).toHaveBeenCalledExactlyOnceWith(root, timeout);
@@ -107,4 +118,16 @@ test("missing registry cannot disappear silently", () => {
     verify(root);
   }).toThrow();
   expect(runNpm).not.toHaveBeenCalled();
+});
+
+test("failed test receipt stops security and mutation", () => {
+  vi.mocked(verifyTests).mockImplementationOnce(() => {
+    throw new Error("incomplete tests");
+  });
+  const root = repository([["first"]]);
+  expect(() => {
+    verify(root);
+  }).toThrow("incomplete tests");
+  expect(verifySecurity).not.toHaveBeenCalled();
+  expect(runNpm).toHaveBeenCalledExactlyOnceWith(["first"], root, 5000);
 });
