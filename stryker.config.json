@@ -1,6 +1,11 @@
 {
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
-  "mutate": ["src/**/*.ts", "quality/**/*.ts"],
+  "mutate": [
+    "src/**/*.ts",
+    "quality/**/*.ts",
+    "vitest.config.ts",
+    "eslint.config.mjs"
+  ],
   "testRunner": "vitest",
   "coverageAnalysis": "off",
   "reporters": ["clear-text", "json", "event-recorder"],

@@ -1,0 +1,32 @@
+[
+  {
+    "ignores": [
+      "dist/**",
+      ".quality-build/**",
+      "coverage/**",
+      "node_modules/**"
+    ]
+  },
+  {
+    "files": ["**/*.ts"],
+    "languageOptions": {
+      "parserOptions": {
+        "projectService": true
+      }
+    }
+  },
+  {
+    "rules": {
+      "complexity": ["error", 10],
+      "sonarjs/cognitive-complexity": ["error", 5],
+      "max-lines": [
+        "error",
+        {
+          "max": 399,
+          "skipBlankLines": false,
+          "skipComments": false
+        }
+      ]
+    }
+  }
+]

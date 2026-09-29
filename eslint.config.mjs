@@ -1,28 +1,13 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import sonarjs from "eslint-plugin-sonarjs";
+import policy from "./quality/eslint-policy.json" with { type: "json" };
 
-export default tseslint.config(
-  {
-    ignores: ["dist/**", ".quality-build/**", "coverage/**", "node_modules/**"],
-  },
+export default [
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
-  {
-    files: ["**/*.ts"],
-    languageOptions: { parserOptions: { projectService: true } },
-  },
-  {
-    plugins: { sonarjs },
-    rules: {
-      complexity: ["error", 10],
-      "sonarjs/cognitive-complexity": ["error", 5],
-      "max-lines": [
-        "error",
-        { max: 399, skipBlankLines: false, skipComments: false },
-      ],
-    },
-  },
-  { files: ["**/*.mjs"], extends: [tseslint.configs.disableTypeChecked] },
-);
+  ...policy,
+  { plugins: { sonarjs } },
+  { files: ["**/*.mjs"], ...tseslint.configs.disableTypeChecked },
+];

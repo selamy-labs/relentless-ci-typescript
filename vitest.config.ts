@@ -1,17 +1,3 @@
-import { defineConfig } from "vitest/config";
+import policy from "./quality/vitest-policy.json" with { type: "json" };
 
-export default defineConfig({
-  test: {
-    include: ["tests/**/*.test.ts"],
-    coverage: {
-      provider: "v8",
-      include: ["src/**/*.ts", "quality/**/*.ts"],
-      thresholds: {
-        lines: 100,
-        branches: 100,
-        functions: 100,
-        statements: 100,
-      },
-    },
-  },
-});
+export default policy;

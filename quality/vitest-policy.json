@@ -1,0 +1,20 @@
+{
+  "test": {
+    "include": ["tests/**/*.test.ts"],
+    "coverage": {
+      "provider": "v8",
+      "include": [
+        "src/**/*.ts",
+        "quality/**/*.ts",
+        "vitest.config.ts",
+        "eslint.config.mjs"
+      ],
+      "thresholds": {
+        "lines": 100,
+        "branches": 100,
+        "functions": 100,
+        "statements": 100
+      }
+    }
+  }
+}

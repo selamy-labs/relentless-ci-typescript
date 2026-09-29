@@ -13,12 +13,16 @@
     "verbatimModuleSyntax": true,
     "declaration": true,
     "outDir": "dist",
-    "types": ["node"]
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": true,
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*.ts",
     "tests/**/*.ts",
     "vitest.config.ts",
-    "quality/**/*.ts"
+    "quality/**/*.ts",
+    "eslint.config.mjs"
   ]
 }

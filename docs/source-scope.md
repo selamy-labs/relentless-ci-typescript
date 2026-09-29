@@ -6,4 +6,14 @@ Every enrolled file has at most 399 physical lines, including comments and blank
 
 Protected top-level generated areas are `.git` (Git metadata), `.venv` (an optional local environment), `.codegraph` (local indexing), `.pytest_cache` and `.hypothesis` (optional local Python tooling), `node_modules` (`npm ci`), `dist` (`npm run build`), `coverage` (`npm run coverage`), `.quality-results` (`npm run mutation` and gate reports), `.quality-build` (`tsc -p tsconfig.quality.json`), and `.stryker-tmp` (`npm run mutation`). None may contain tracked inputs. These entries authorize local generated state, not exceptions for maintained source. Hosted jobs must recreate environments and artifacts from protected inputs; the complete hosted freshness checks are still being implemented.
 
-This gate is part of the local implementation; the shared full verifier, hosted enforcement and policy-change approvals are pending. Root configurations are counted here but their complete executable coverage/mutation enrollment is also still pending.
+This gate is part of the shared full local verifier. Hosted enforcement, policy-change approvals and generated-artifact freshness still remain pending.
+
+Executable root tool adapters (`vitest.config.ts` and `eslint.config.mjs`)
+are enrolled in V8 coverage and Stryker mutation as well as size, typing, lint,
+security and dependency analysis. Their policy values live in protected JSON
+files under `quality`; those files are data, not executable source. Native
+configuration tests prove strict typing/semantic rules and the 399/400 line,
+5/6 cognitive and 10/11 cyclomatic boundaries. The cyclomatic probe disables
+cognitive reporting only in its isolated ESLint instance so that the stricter
+cognitive limit does not mask the cyclomatic boundary; the required repository
+configuration enforces both.
