@@ -36,7 +36,8 @@
     "dependency-policy": "node dependency-main.mjs",
     "package:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/package-main.js",
     "workflows": "tsc -p tsconfig.quality.json && node .quality-build/quality/workflow-main.js",
-    "support:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/support-main.js"
+    "support:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/support-main.js",
+    "documentation": "tsc -p tsconfig.quality.json && node .quality-build/quality/documentation-main.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -49,13 +50,20 @@
     "eslint": "^10.11.0",
     "eslint-plugin-sonarjs": "^4.2.2",
     "fast-check": "^4.10.2",
+    "github-slugger": "2.0.0",
     "jsonc-parser": "3.3.1",
     "knip": "^6.38.0",
+    "markdownlint": "0.41.1",
+    "mdast-util-from-markdown": "2.0.3",
+    "mdast-util-gfm": "3.1.0",
+    "mdast-util-to-string": "4.0.0",
+    "micromark-extension-gfm": "3.0.0",
     "prettier": "^3.9.9",
     "smol-toml": "1.9.0",
     "tar": "7.5.22",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0",
+    "unist-util-visit": "5.1.0",
     "vitest": "^5.0.2",
     "yaml": "2.9.1",
     "zod": "^4.6.5"

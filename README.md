@@ -1,15 +1,16 @@
 # Relentless CI — TypeScript
 
-A framework-neutral starting point for a small typed library and JSON CLI,
-with strict quality checks that also test their executable verifiers.
+A framework-neutral starting point for a small typed library and JSON CLI, with
+strict quality checks that also test their executable verifiers.
 
-This is an implementation draft. Local gates are verified; public hosted CI,
-the runtime/platform matrix and live repository protections are still being
+This is an implementation draft. Local gates are verified; public hosted CI, the
+runtime/platform matrix and live repository protections are still being
 completed. See individual gate documents for precise scope and limitations.
 
 ## Run the full local verifier
 
-Prerequisites: Node.js 22, 24 or 26, npm, Git and [Mise](https://mise.jdx.dev/). Run from the repository root:
+Prerequisites: Node.js 22, 24 or 26, npm, Git and [Mise](https://mise.jdx.dev/).
+Run from the repository root:
 
 ```sh
 npm run verify
@@ -18,12 +19,13 @@ npm run verify
 The full command installs locked development tools, runs the checked-in gate
 definitions, scans secrets/dependencies/source security, and runs full mutation
 testing. Tool downloads and vulnerability queries need network access; code
-checks require no accounts or credentials. Mise pins native scanner versions
-and platform artifact hashes. A missing tool, failed command, malformed report
-or incomplete inventory fails verification.
+checks require no accounts or credentials. Mise pins native scanner versions and
+platform artifact hashes. A missing tool, failed command, malformed report or
+incomplete inventory fails verification.
 
-The configured local tools include strict TypeScript, ESLint/SonarJS, Prettier, Knip, Vitest/fast-check, dependency-cruiser and Stryker. Strict policy values are
-399 physical lines per authored file, cognitive complexity 5, cyclomatic
+The configured local tools include strict TypeScript, ESLint/SonarJS, Prettier,
+Knip, Vitest/fast-check, dependency-cruiser and Stryker. Strict policy values
+are 399 physical lines per authored file, cognitive complexity 5, cyclomatic
 complexity 10, and 100% line and branch coverage. Mutation must conclusively
 kill every planned valid mutant. No equivalent-mutant exceptions are in use.
 
@@ -42,10 +44,10 @@ Output is `[[1,8]]` followed by a newline. Valid input exits 0; malformed input
 writes a useful error to stderr and exits 2. Boolean, fractional and nonfinite
 endpoints are invalid. Integral JSON numeric values are accepted.
 
-Product code is in `src`. Tests include behavior/boundary examples,
-CLI streams and exit statuses, idempotence and permutation properties, and an
-independent bounded set-union model. Keep the verifier tests when replacing
-the example library with your own application.
+Product code is in `src`. Tests include behavior/boundary examples, CLI streams
+and exit statuses, idempotence and permutation properties, and an independent
+bounded set-union model. Keep the verifier tests when replacing the example
+library with your own application.
 
 ## Understand a failure
 
@@ -57,13 +59,14 @@ the example library with your own application.
 - [Portable repository paths and text](docs/repository-hygiene.md)
 - [Workflow validation and runtime matrices](docs/workflows.md)
 - [Support-file format and duplicate-key validation](docs/support-files.md)
+- [Documentation structure, spelling and local links](docs/documentation.md)
 - [Policy inspirations and chosen thresholds](docs/policy-provenance.md)
 
 Fix the underlying defect and rerun the full command. Do not shrink source
-scope, lower thresholds, add broad suppressions, ignore unsuccessful mutants
-or substitute a faster profile for required verification. Changes to policy
-need explicit rationale and approval from trusted maintainer/platform state;
-that hosted enforcement is not yet installed in this draft.
+scope, lower thresholds, add broad suppressions, ignore unsuccessful mutants or
+substitute a faster profile for required verification. Changes to policy need
+explicit rationale and approval from trusted maintainer/platform state; that
+hosted enforcement is not yet installed in this draft.
 
 ## Adapt the starting point
 

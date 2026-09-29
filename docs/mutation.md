@@ -7,7 +7,8 @@ command is intended for local and hosted verification.
 The scope is all TypeScript in `src/` and `quality/`, plus the executable root
 Vitest/ESLint configuration and dependency-policy entry points. Tests are
 exercised rather than mutated. There are no operator or equivalent-mutant
-exclusions. Incremental reuse is disabled. Stryker works in its isolated sandbox.
+exclusions. Incremental reuse is disabled. Stryker works in its isolated
+sandbox.
 
 The native Vitest runner selects related tests through its module graph. Probes
 that exercise executable configuration import and pass that config directly to
@@ -39,8 +40,8 @@ that separate hosted enforcement is not implied by a local passing result.
 
 ## Dependency repair
 
-Stryker 10.0.0 depends on `typed-rest-client` 2.3.1, which pins `qs` 6.15.1.
-The scoped package override selects patched `qs` 6.16.0. This repairs the
-vulnerable dependency rather than suppressing audit results. Revisit the
-override when upstream removes the vulnerable pin; verify mutation and audit
-again before removing it.
+Stryker 10.0.0 depends on `typed-rest-client` 2.3.1, which pins `qs` 6.15.1. The
+scoped package override selects patched `qs` 6.16.0. This repairs the vulnerable
+dependency rather than suppressing audit results. Revisit the override when
+upstream removes the vulnerable pin; verify mutation and audit again before
+removing it.

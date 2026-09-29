@@ -7,7 +7,8 @@
   Timeouts, errors, missing outcomes or excluded scope cannot count as kills.
 - Use the same checked-in gate definitions locally and in CI. Keep all new
   source enrolled; generated exemptions need a reproduction and freshness proof.
-- Test behavior and negative gate cases. Maintain native report/inventory checks.
+- Test behavior and negative gate cases. Maintain native report/inventory
+  checks.
 - Do not weaken policies or add suppressions without rationale and trusted
   maintainer approval. PR changes cannot grant their own approval.
 - Never execute untrusted PR code with privileged credentials or repository

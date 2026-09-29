@@ -33,8 +33,8 @@ keep duplicate runs from overlapping without cancelling other revisions.
 
 The aggregate job requires both matrix results to be successful. Missing,
 failed, skipped and cancelled results cannot satisfy its shell check. Raw
-analysis receipts are retained for seven days. Daily runs repeat the same
-checks against main to detect newly disclosed dependency vulnerabilities.
+analysis receipts are retained for seven days. Daily runs repeat the same checks
+against main to detect newly disclosed dependency vulnerabilities.
 
 Native local probes establish scanner behavior and aggregate-state rejection.
 The workflow has not yet run on GitHub; runtime matrices and required platform
