@@ -6,7 +6,7 @@ import { generatedRoots } from "./source-scope.js";
 
 const conflicts = /^(?:<{7,}|={7,}|>{7,}|\|{7,})(?:[ \t]|$)/mu;
 
-function diskFiles(root: string, directory: string): string[] {
+export function diskFiles(root: string, directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     if (directory === root && generatedRoots.has(entry.name)) {
       return [];

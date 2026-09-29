@@ -1,6 +1,7 @@
 [
   ["run", "dependency-policy"],
   ["run", "hygiene"],
+  ["run", "support:check"],
   ["run", "workflows"],
   ["run", "build"],
   ["run", "package:check"],

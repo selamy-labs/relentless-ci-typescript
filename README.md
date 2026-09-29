@@ -56,6 +56,7 @@ the example library with your own application.
 - [Type and lint suppression policy](docs/lint-policy.md)
 - [Portable repository paths and text](docs/repository-hygiene.md)
 - [Workflow validation and runtime matrices](docs/workflows.md)
+- [Support-file format and duplicate-key validation](docs/support-files.md)
 - [Policy inspirations and chosen thresholds](docs/policy-provenance.md)
 
 Fix the underlying defect and rerun the full command. Do not shrink source
