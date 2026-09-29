@@ -1,0 +1,8 @@
+[
+  ["run", "build"],
+  ["run", "typecheck"],
+  ["run", "lint"],
+  ["run", "format:check"],
+  ["run", "deadcode"],
+  ["run", "coverage"]
+]

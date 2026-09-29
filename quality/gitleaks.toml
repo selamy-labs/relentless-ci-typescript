@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Protected generated directories; tracked inputs here are rejected"
+paths = [
+  '^\.git/', '^\.venv/', '^\.codegraph/', '^\.pytest_cache/',
+  '^\.hypothesis/', '^node_modules/', '^dist/', '^coverage/',
+  '^\.quality-results/', '^\.quality-build/', '^\.stryker-tmp/',
+]
