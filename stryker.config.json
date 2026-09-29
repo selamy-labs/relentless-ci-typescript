@@ -3,7 +3,6 @@
   "mutate": [
     "src/**/*.ts",
     "quality/**/*.ts",
-    "vitest.config.ts",
     "eslint.config.mjs",
     "dependency-policy.mjs",
     "dependency-main.mjs"
@@ -23,5 +22,8 @@
   "incremental": false,
   "eventReporter": {
     "baseDir": ".quality-results/mutation-events"
+  },
+  "vitest": {
+    "configFile": "quality/vitest-config.ts"
   }
 }

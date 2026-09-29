@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { z } from "zod";
 import { runNpm } from "./commands.js";
+import { prepareCoverage, verifyCoverage } from "./coverage-report.js";
 import { readJson, verifySecurity } from "./security.js";
 import { prepareTests, verifyTests } from "./test-report.js";
 import { verifyRuntimeDiagnostics } from "./runtime-diagnostics.js";
@@ -14,6 +15,7 @@ export function verify(root: string): void {
     readJson(join(root, "quality", "timeout.json")),
   );
   const sources = verifySources(root);
+  prepareCoverage(root);
   prepareTests(root);
   verifyTracked(root);
   const checks = registry.parse(readJson(join(root, "quality", "checks.json")));
@@ -22,6 +24,7 @@ export function verify(root: string): void {
   }
   verifyTests(root, sources);
   verifyRuntimeDiagnostics(root, sources);
+  verifyCoverage(root, sources);
   verifySecurity(root, timeout);
   runNpm(["run", "mutation"], root, timeout);
 }

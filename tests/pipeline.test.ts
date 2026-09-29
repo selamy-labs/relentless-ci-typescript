@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, test, vi } from "vitest";
 import { runNpm } from "../quality/commands.js";
+import { prepareCoverage, verifyCoverage } from "../quality/coverage-report.js";
 import { verifySecurity } from "../quality/security.js";
 import { verifySources, verifyTracked } from "../quality/source-scope.js";
 import { prepareTests, verifyTests } from "../quality/test-report.js";
@@ -10,6 +11,10 @@ import { verifyRuntimeDiagnostics } from "../quality/runtime-diagnostics.js";
 import { verify } from "../quality/pipeline.js";
 
 vi.mock("../quality/commands.js", () => ({ runNpm: vi.fn() }));
+vi.mock("../quality/coverage-report.js", () => ({
+  prepareCoverage: vi.fn(),
+  verifyCoverage: vi.fn(),
+}));
 vi.mock("../quality/security.js", async () => {
   const actual = await vi.importActual<typeof import("../quality/security.js")>(
     "../quality/security.js",
@@ -62,16 +67,22 @@ test.each([1, 5000])(
     vi.mocked(verifySecurity).mockImplementation(() => {
       received.push("security");
     });
+    vi.mocked(verifyCoverage).mockImplementation(() => {
+      received.push("coverage inventory");
+    });
     verify(root);
     expect(received).toEqual([
       "first argument with spaces",
       "second",
       "test integrity",
       "runtime diagnostics",
+      "coverage inventory",
       "security",
       "run mutation",
     ]);
     expect(prepareTests).toHaveBeenCalledExactlyOnceWith(root);
+    expect(prepareCoverage).toHaveBeenCalledExactlyOnceWith(root);
+    expect(verifyCoverage).toHaveBeenCalledExactlyOnceWith(root, []);
     expect(verifyTests).toHaveBeenCalledExactlyOnceWith(root, []);
     expect(verifyRuntimeDiagnostics).toHaveBeenCalledExactlyOnceWith(root, []);
     expect(verifySources).toHaveBeenCalledExactlyOnceWith(root);
@@ -149,6 +160,18 @@ test("failed runtime diagnostics stop security and mutation", () => {
   expect(() => {
     verify(root);
   }).toThrow("uncaught diagnostics");
+  expect(verifySecurity).not.toHaveBeenCalled();
+  expect(runNpm).toHaveBeenCalledExactlyOnceWith(["first"], root, 5000);
+});
+
+test("failed coverage inventory stops security and mutation", () => {
+  vi.mocked(verifyCoverage).mockImplementationOnce(() => {
+    throw new Error("uncovered config");
+  });
+  const root = repository([["first"]]);
+  expect(() => {
+    verify(root);
+  }).toThrow("uncovered config");
   expect(verifySecurity).not.toHaveBeenCalled();
   expect(runNpm).toHaveBeenCalledExactlyOnceWith(["first"], root, 5000);
 });

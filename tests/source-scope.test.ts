@@ -76,6 +76,7 @@ test("discovers tests, scripts and never-imported code despite ignore files", ()
 
 test.each([
   "escape.ts",
+  "vitest.config.ts",
   "scripts/escape.ts",
   "quality/config.mts",
   "quality/helper.js",
@@ -92,7 +93,6 @@ test.each([
 });
 
 test.each([
-  "vitest.config.ts",
   "eslint.config.mjs",
   "dependency-policy.mjs",
   "dependency-main.mjs",

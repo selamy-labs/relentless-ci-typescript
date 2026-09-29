@@ -17,7 +17,6 @@ export const generatedRoots = new Set([
   ".stryker-tmp",
 ]);
 const rootConfiguration = new Set([
-  "vitest.config.ts",
   "eslint.config.mjs",
   "dependency-policy.mjs",
   "dependency-main.mjs",

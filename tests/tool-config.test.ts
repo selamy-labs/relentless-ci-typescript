@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { ESLint, type Linter } from "eslint";
 import { expect, test } from "vitest";
 import eslintConfig from "../eslint.config.mjs";
-import vitestConfig from "../vitest.config.js";
+import vitestConfig from "../quality/vitest-config.js";
 
 const sourceFile = resolve("src/validation.ts");
 function rules(results: ESLint.LintResult[]): string[] {
@@ -33,10 +33,10 @@ test("native test configuration enrolls all authored executable roots", () => {
   ]);
   expect(vitestConfig.test.outputFile).toBe(".quality-results/tests.json");
   expect(vitestConfig.test.include).toEqual(["tests/**/*.test.ts"]);
+  expect(vitestConfig.test.root).toBe(".");
   expect(vitestConfig.test.coverage.include).toEqual([
     "src/**/*.ts",
     "quality/**/*.ts",
-    "vitest.config.ts",
     "eslint.config.mjs",
     "dependency-policy.mjs",
     "dependency-main.mjs",

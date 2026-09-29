@@ -40,8 +40,8 @@ invalid gzip, dishonest sizes/modes/digests and exact budget boundaries.
 Verification code itself remains enrolled in strict typing, ESLint complexity
 limits, complete coverage, SAST, architecture and full mutation.
 
-Full local verification for this slice passes with complete coverage and all 903
-mutants killed. The required automated consumer gate installs this same
+Native archive and installed-consumer probes have passed locally.
+The required automated consumer gate installs this same
 validated archive offline without scripts in a second fresh temporary project.
 It validates public import/type metadata and native CLI registration, imports
 through the public export map, invokes the registered CLI using npm exec and

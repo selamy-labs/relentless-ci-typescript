@@ -33,13 +33,13 @@ on every listed operating system. A requested job is not evidence that it passed
 Every matrix result must succeed; missing, skipped and cancelled jobs cannot
 establish support.
 
-Complete local Linux verification has passed on Node.js 22.23.2, 24.19.0 and
-26.4.0 with npm 12.0.2 at implementation revision
-`a5cacc99b7ec44f4e144a3b4ffc1bec3c738a7ab`. The subsequent runtime gate and
-maintenance configuration also pass the complete local Linux Node.js 26.4.0 /
-npm 12.0.2 verifier: 879 tests, 100% coverage and all 1,748 mutants killed.
-Current Node.js 22 and 24 reruns, plus hosted Linux, macOS and Windows
-qualification, remain pending.
+Local Linux tool runs exist on Node.js 22.23.2, 24.19.0 and 26.4.0 with npm
+12.0.2. The runtime-gate revision produced 879 passing tests and 1,748 killed
+mutants on Node.js 22 and 26. Independent coverage auditing then found that
+Vitest omitted the executable configuration despite its declared enrollment.
+The adapter has been relocated and exact native coverage inventory validation
+added. Fresh full qualification of that repair on every declared runtime,
+plus hosted Linux, macOS and Windows qualification, remains pending.
 
 Recheck the upstream schedule before each publication and runtime-policy change.
 Treat a release line as unsupported on or after its listed end date. Before that

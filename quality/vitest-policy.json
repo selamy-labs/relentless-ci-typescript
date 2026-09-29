@@ -6,7 +6,6 @@
       "include": [
         "src/**/*.ts",
         "quality/**/*.ts",
-        "vitest.config.ts",
         "eslint.config.mjs",
         "dependency-policy.mjs",
         "dependency-main.mjs"
@@ -25,6 +24,7 @@
     "setupFiles": ["tests/runtime-setup.ts"],
     "reporters": ["default", "json", "./quality/diagnostics-reporter.ts"],
     "outputFile": ".quality-results/tests.json",
-    "dangerouslyIgnoreUnhandledErrors": false
+    "dangerouslyIgnoreUnhandledErrors": false,
+    "root": "."
   }
 }

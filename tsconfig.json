@@ -21,7 +21,6 @@
   "include": [
     "src/**/*.ts",
     "tests/**/*.ts",
-    "vitest.config.ts",
     "quality/**/*.ts",
     "eslint.config.mjs",
     "dependency-policy.mjs",
