@@ -34,7 +34,8 @@
     "verify:installed": "tsc -p tsconfig.quality.json && node .quality-build/quality/verify-main.js",
     "architecture": "depcruise --no-ignore-known --no-cache --config quality/architecture.json --output-type err-long src tests quality vitest.config.ts eslint.config.mjs dependency-policy.mjs dependency-main.mjs",
     "dependency-policy": "node dependency-main.mjs",
-    "package:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/package-main.js"
+    "package:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/package-main.js",
+    "workflows": "tsc -p tsconfig.quality.json && node .quality-build/quality/workflow-main.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

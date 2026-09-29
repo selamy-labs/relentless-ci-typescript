@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip/schema.json",
+  "ignoreBinaries": ["mise"],
   "project": [
     "src/**/*.ts",
     "tests/**/*.ts",
