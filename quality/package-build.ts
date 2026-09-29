@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { runNpm } from "./commands.js";
 import { npmOutput } from "./npm-output.js";
 import { packReport, verifyPackage } from "./package-report.js";
+import { verifyPackageConsumer } from "./package-consumer.js";
 import policy from "./package-policy.json" with { type: "json" };
 
 export function verifyPackageBuild(root: string, timeout: number): void {
@@ -37,6 +38,12 @@ export function verifyPackageBuild(root: string, timeout: number): void {
     );
     const archive = readFileSync(join(stage, packReport(value).filename));
     verifyPackage(value, archive, expected);
+    verifyPackageConsumer(
+      root,
+      join(stage, packReport(value).filename),
+      packReport(value).name,
+      timeout,
+    );
     const output = join(root, ".quality-results");
     mkdirSync(output, { recursive: true });
     writeFileSync(join(output, "package.tgz"), archive);

@@ -14,9 +14,13 @@ import { afterEach, expect, test, vi } from "vitest";
 import { runNpm } from "../quality/commands.js";
 import { npmOutput } from "../quality/npm-output.js";
 import { verifyPackage } from "../quality/package-report.js";
+import { verifyPackageConsumer } from "../quality/package-consumer.js";
 import { verifyPackageBuild } from "../quality/package-build.js";
 import policy from "../quality/package-policy.json" with { type: "json" };
 
+vi.mock("../quality/package-consumer.js", () => ({
+  verifyPackageConsumer: vi.fn(),
+}));
 vi.mock("../quality/commands.js", () => ({ runNpm: vi.fn() }));
 vi.mock("../quality/npm-output.js", () => ({ npmOutput: vi.fn() }));
 vi.mock("../quality/package-report.js", async () => {
@@ -174,4 +178,16 @@ test("UTF-8 corruption inside a valid receipt string is rejected before content 
   }).toThrow();
   expect(verifyPackage).not.toHaveBeenCalled();
   expect(existsSync(stage())).toBe(false);
+});
+
+test("consumer validation must finish before saving package receipts", () => {
+  const { root, stage } = setup();
+  vi.mocked(verifyPackageConsumer).mockImplementationOnce(() => {
+    throw new Error("broken installed types");
+  });
+  expect(() => {
+    verifyPackageBuild(root, 1234);
+  }).toThrow("broken installed types");
+  expect(existsSync(stage())).toBe(false);
+  expect(existsSync(join(root, ".quality-results/package.tgz"))).toBe(false);
 });

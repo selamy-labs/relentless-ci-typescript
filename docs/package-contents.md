@@ -37,10 +37,15 @@ Verification code itself remains enrolled in strict typing, ESLint complexity
 limits, complete coverage, SAST, architecture and full mutation.
 
 Full local verification for this slice passes with complete coverage and all
-799 mutants killed. Separate isolated native probes verify public imports,
-shipped declarations and the installed CLI, including rejection of broken
-declarations. The required automated consumer gate, copy/rename tests,
-reproducibility and hosted matrices remain pending.
+903 mutants killed. The required automated consumer gate installs this same
+validated archive offline without scripts in a second fresh temporary project.
+It validates public import/type metadata and native CLI registration, imports
+through the public export map, invokes the registered CLI using npm exec and
+compiles a strictly typed consumer against the shipped declarations. Status,
+stdout and stderr must match each probe exactly; timeouts and tool errors fail.
+Receipts are saved only after all consumer checks pass. Native archives with
+broken declarations, CLI metadata, import metadata or runtime behavior fail.
+Copy/rename tests, reproducibility and hosted matrices remain pending.
 No registry publishing is part of this template.
 
 Native semantics: [npm pack](https://docs.npmjs.com/cli/v11/commands/npm-pack/)
