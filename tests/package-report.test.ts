@@ -126,14 +126,9 @@ test.each([null, {}, [], [null], [{ filename: "../escape.tgz" }]])(
 test("rejects invalid gzip even when its reported digest is correct", () => {
   const { report } = fixture();
   const archive = Buffer.from("not gzip");
-  const changed = {
-    ...report[0],
-    size: archive.length,
-    shasum: createHash("sha1").update(archive).digest("hex"),
-    integrity: `sha512-${createHash("sha512").update(archive).digest("base64")}`,
-  };
+
   expect(() => {
-    verifyPackage([changed], archive, expected);
+    verifyPackage(receiptFor(archive, report), archive, expected);
   }).toThrow();
 });
 

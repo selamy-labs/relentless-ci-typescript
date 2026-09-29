@@ -29,6 +29,13 @@ function audit() {
           { package: { name: "first", version: "1.0", ecosystem: "npm" } },
         ],
       },
+    ] as [
+      {
+        source: { type: string; path: string };
+        packages: {
+          package: { name: string; version: string; ecosystem: string };
+        }[];
+      },
     ],
   };
 }
@@ -108,7 +115,6 @@ test("derives nested nonaliased dependency names correctly", () => {
   };
   const value = audit();
   const [group] = value.results;
-  if (!group) throw new Error("fixture missing");
   group.packages.push({
     package: { name: "third", version: "3.0", ecosystem: "npm" },
   });
@@ -121,8 +127,7 @@ test.each(["vulnerabilities", "groups", "license_violations"])(
   "rejects audit %s without a severity floor",
   (field) => {
     const value = audit();
-    const [group] = value.results;
-    if (!group) throw new Error("fixture missing");
+    const group = auditGroup(value);
     group.packages = group.packages.map((item) => ({
       ...item,
       [field]: [{ severity: "LOW" }],
@@ -142,7 +147,6 @@ test("rejects audit errors alongside apparently complete packages", () => {
 test.each(["file", "scanner"])("rejects wrong audit source type %s", (type) => {
   const value = audit();
   const [group] = value.results;
-  if (!group) throw new Error("fixture missing");
   group.source.type = type;
   expect(() => {
     verifyAudit(value, lock(), lockfile);
@@ -172,8 +176,7 @@ test.each(["name", "version", "ecosystem"])(
   "rejects substituted package %s",
   (field) => {
     const value = audit();
-    const [group] = value.results;
-    if (!group) throw new Error("fixture missing");
+    const group = auditGroup(value);
     group.packages = group.packages.map((item) => ({
       package: { ...item.package, [field]: "substituted" },
     }));
@@ -186,7 +189,6 @@ test.each(["name", "version", "ecosystem"])(
 test("rejects omitted and duplicated audited packages", () => {
   const value = audit();
   const [group] = value.results;
-  if (!group) throw new Error("fixture missing");
   group.packages.pop();
   expect(() => {
     verifyAudit(value, lock(), lockfile);
@@ -200,7 +202,6 @@ test("rejects omitted and duplicated audited packages", () => {
 test("empty audit and lock cannot pass", () => {
   const value = audit();
   const [group] = value.results;
-  if (!group) throw new Error("fixture missing");
   group.packages = [];
   expect(() => {
     verifyAudit(value, { lockfileVersion: 3, packages: {} }, lockfile);
@@ -227,3 +228,7 @@ test("accepts empty secret findings and rejects findings or malformed output", (
     verifySecrets({});
   }).toThrow();
 });
+
+function auditGroup(value: ReturnType<typeof audit>) {
+  return value.results[0];
+}

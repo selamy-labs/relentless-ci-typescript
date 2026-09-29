@@ -1,19 +1,10 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { temporaryDirectories } from "./temporary-directory.js";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
-import { afterEach, expect, test } from "vitest";
+import { expect, test } from "vitest";
 import { run } from "../quality/commands.js";
 
-const roots: string[] = [];
-function repository(): string {
-  const root = mkdtempSync(join(tmpdir(), "relentless-commands-"));
-  roots.push(root);
-  return root;
-}
-afterEach(() => {
-  for (const root of roots.splice(0))
-    rmSync(root, { recursive: true, force: true });
-});
+const repository = temporaryDirectories("relentless-commands-");
 
 test("runs structured arguments in the requested working directory", () => {
   const root = repository();

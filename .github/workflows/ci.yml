@@ -58,6 +58,7 @@ jobs:
             .quality-results/static-security.json
             .quality-results/workflows-security.json
             .quality-results/documentation.json
+            .quality-results/duplication/**/*.json
             .quality-results/mutation*.json
             .quality-results/mutation-events/*.json
           include-hidden-files: true

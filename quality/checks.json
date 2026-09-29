@@ -3,6 +3,7 @@
   ["run", "hygiene"],
   ["run", "support:check"],
   ["run", "workflows"],
+  ["run", "duplication"],
   ["run", "documentation"],
   ["run", "build"],
   ["run", "package:check"],

@@ -1,27 +1,10 @@
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { temporaryDirectories } from "./temporary-directory.js";
+import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, expect, test } from "vitest";
+import { expect, test } from "vitest";
 import { verifySupportFiles } from "../quality/support-files.js";
 
-const roots: string[] = [];
-
-function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), "relentless-support-test-"));
-  roots.push(root);
-  return root;
-}
-
-afterEach(() => {
-  for (const root of roots.splice(0))
-    rmSync(root, { recursive: true, force: true });
-});
+const fixture = temporaryDirectories("relentless-support-test-");
 
 test.each([
   ["policy.json", '{"value":1}'],

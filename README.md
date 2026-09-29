@@ -76,3 +76,5 @@ code inside enrolled locations. New extensions, generated paths and analyzer
 limitations must be enrolled explicitly before verification can accept them.
 
 MIT licensed; see [LICENSE](LICENSE).
+
+See [duplication gate semantics and remediation](docs/duplication.md).

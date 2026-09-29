@@ -37,7 +37,8 @@
     "package:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/package-main.js",
     "workflows": "tsc -p tsconfig.quality.json && node .quality-build/quality/workflow-main.js",
     "support:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/support-main.js",
-    "documentation": "tsc -p tsconfig.quality.json && node .quality-build/quality/documentation-main.js"
+    "documentation": "tsc -p tsconfig.quality.json && node .quality-build/quality/documentation-main.js",
+    "duplication": "tsc -p tsconfig.quality.json && node .quality-build/quality/duplication-main.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
