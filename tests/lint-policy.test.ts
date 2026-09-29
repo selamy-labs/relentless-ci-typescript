@@ -1,8 +1,15 @@
 import { resolve } from "node:path";
 import { ESLint } from "eslint";
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
 
 const sourceFile = resolve("src/validation.ts");
+
+beforeAll(async () => {
+  const results = await new ESLint().lintText("export const safe = 1;", {
+    filePath: sourceFile,
+  });
+  expect(results.flatMap((result) => result.messages)).toEqual([]);
+});
 
 test.each(["ts-ignore", "ts-nocheck", "ts-expect-error"])(
   "rejects compiler suppression %s even with a rationale",
