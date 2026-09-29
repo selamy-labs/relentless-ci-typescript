@@ -38,6 +38,8 @@ function repository(files: Record<string, string>): string {
     "src/index.ts": "export const value = 1;\n",
     "tests/example.ts": "import '../src/index.js';\n",
     "quality/example.ts": "import 'development';\n",
+    "dependency-policy.mjs": "export const value = 1;\n",
+    "dependency-main.mjs": "import './dependency-policy.mjs';\n",
     ...files,
   };
   for (const [name, contents_] of Object.entries(contents)) {
@@ -109,6 +111,16 @@ test.each([
     "no-tooling-in-production",
   ],
   ["src/index.ts", "import 'undeclared';\n", "no-undeclared"],
+  [
+    "src/index.ts",
+    "import '../dependency-policy.mjs';\n",
+    "no-tooling-in-production",
+  ],
+  [
+    "src/index.ts",
+    "import '../dependency-main.mjs';\n",
+    "no-tooling-in-production",
+  ],
   ["quality/example.ts", "import 'undeclared';\n", "no-undeclared"],
   ["tests/example.ts", "import 'undeclared';\n", "no-undeclared"],
   ["src/index.ts", "import './missing.js';\n", "no-unresolved"],

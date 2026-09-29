@@ -3,7 +3,7 @@
 `npm run architecture` invokes locked dependency-cruiser 18.4.0. The same
 command is in the full local verifier's protected check registry. It scans
 all files under `src`, `tests` and `quality`, plus both executable root
-configurations. It does not start from a single entry point, so an unimported
+configurations and the two bootstrap modules. It does not start from a single entry point, so an unimported
 nested module is still analyzed.
 
 All dependency cycles, unresolved imports and packages absent from the

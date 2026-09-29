@@ -91,14 +91,16 @@ test.each([
   expect(() => verifySources(root)).toThrow("outside supported scope");
 });
 
-test.each(["vitest.config.ts", "eslint.config.mjs"])(
-  "includes executable root configuration %s",
-  (name) => {
-    const root = repository();
-    const path = source(root, name, "");
-    expect(verifySources(root)).toEqual([path]);
-  },
-);
+test.each([
+  "vitest.config.ts",
+  "eslint.config.mjs",
+  "dependency-policy.mjs",
+  "dependency-main.mjs",
+])("includes executable root configuration %s", (name) => {
+  const root = repository();
+  const path = source(root, name, "");
+  expect(verifySources(root)).toEqual([path]);
+});
 
 test.each([...generatedRoots])(
   "exempts only the top-level generated directory %s",

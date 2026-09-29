@@ -1,4 +1,5 @@
 [
+  ["run", "dependency-policy"],
   ["run", "build"],
   ["run", "typecheck"],
   ["run", "lint"],

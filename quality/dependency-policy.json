@@ -1,0 +1,28 @@
+{
+  "registryOrigins": ["https://registry.npmjs.org"],
+  "runtimeLicenses": [
+    "0BSD",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BlueOak-1.0.0",
+    "ISC",
+    "MIT"
+  ],
+  "developmentLicenses": [
+    "0BSD",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BlueOak-1.0.0",
+    "ISC",
+    "MIT",
+    "CC-BY-4.0",
+    "LGPL-3.0-only",
+    "MPL-2.0"
+  ],
+  "reviewedInstallScripts": {
+    "node_modules/fsevents": "[\"2.3.3\",\"sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==\"]"
+  },
+  "projectLicense": "MIT"
+}

@@ -41,7 +41,7 @@
         "path": "^src/"
       },
       "to": {
-        "path": "^(tests|quality)/|^(vitest[.]config[.]ts|eslint[.]config[.]mjs)$"
+        "path": "^(tests|quality)/|^(vitest[.]config[.]ts|eslint[.]config[.]mjs|dependency-(policy|main)[.]mjs)$"
       }
     }
   ],

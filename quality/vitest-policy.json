@@ -7,7 +7,9 @@
         "src/**/*.ts",
         "quality/**/*.ts",
         "vitest.config.ts",
-        "eslint.config.mjs"
+        "eslint.config.mjs",
+        "dependency-policy.mjs",
+        "dependency-main.mjs"
       ],
       "thresholds": {
         "lines": 100,

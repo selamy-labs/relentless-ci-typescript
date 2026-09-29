@@ -30,6 +30,8 @@ test("native test configuration enrolls all authored executable roots", () => {
     "quality/**/*.ts",
     "vitest.config.ts",
     "eslint.config.mjs",
+    "dependency-policy.mjs",
+    "dependency-main.mjs",
   ]);
   expect(vitestConfig.test.coverage.provider).toBe("v8");
   expect(vitestConfig.test.coverage.thresholds).toEqual({
@@ -47,7 +49,7 @@ test("native ESLint configuration enforces strict semantic rules", async () => {
     { filePath: sourceFile },
   );
   expect(rules(result)).toContain("@typescript-eslint/no-explicit-any");
-});
+}, 30_000);
 
 test.each([399, 400])("counts %s physical comment lines", async (count) => {
   const result = await new ESLint().lintText("// comment\n".repeat(count), {

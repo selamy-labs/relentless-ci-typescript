@@ -16,7 +16,12 @@ export const generatedRoots = new Set([
   ".quality-build",
   ".stryker-tmp",
 ]);
-const rootConfiguration = new Set(["vitest.config.ts", "eslint.config.mjs"]);
+const rootConfiguration = new Set([
+  "vitest.config.ts",
+  "eslint.config.mjs",
+  "dependency-policy.mjs",
+  "dependency-main.mjs",
+]);
 const extensions = new Set([
   ".ts",
   ".tsx",
