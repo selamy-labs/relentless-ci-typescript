@@ -37,6 +37,7 @@
     "package:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/package-main.js",
     "workflows": "tsc -p tsconfig.quality.json && node .quality-build/quality/workflow-main.js",
     "support:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/support-main.js",
+    "runtime:check": "tsc -p tsconfig.quality.json && node .quality-build/quality/runtime-support-main.js",
     "documentation": "tsc -p tsconfig.quality.json && node .quality-build/quality/documentation-main.js",
     "duplication": "tsc -p tsconfig.quality.json && node .quality-build/quality/duplication-main.js"
   },

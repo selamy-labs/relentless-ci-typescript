@@ -1,0 +1,10 @@
+{
+  "source": "https://raw.githubusercontent.com/nodejs/Release/143dd650cab051b6d66176905da3d9f5f4236b55/schedule.json",
+  "reviewedOn": "2026-09-29",
+  "reviewBy": "2026-12-28",
+  "releases": [
+    { "major": "22", "start": "2024-04-24", "end": "2027-04-30" },
+    { "major": "24", "start": "2025-05-06", "end": "2028-04-30" },
+    { "major": "26", "start": "2026-05-05", "end": "2029-04-30" }
+  ]
+}

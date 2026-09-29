@@ -60,6 +60,8 @@ library with your own application.
 - [Workflow validation and runtime matrices](docs/workflows.md)
 - [Support-file format and duplicate-key validation](docs/support-files.md)
 - [Documentation structure, spelling and local links](docs/documentation.md)
+- [Dependency update proposals and runtime maintenance](docs/maintenance.md)
+- [Declared runtimes and dated upstream support](docs/runtimes.md)
 - [Policy inspirations and chosen thresholds](docs/policy-provenance.md)
 
 Fix the underlying defect and rerun the full command. Do not shrink source

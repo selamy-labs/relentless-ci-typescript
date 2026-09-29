@@ -88,6 +88,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Product build
         run: npm run build
+      - name: Verify dated upstream runtime support and matrix consistency
+        run: npm run runtime:check
       - name: Product unit, property and CLI behavior
         run: npm test -- tests/intervals.test.ts tests/properties.test.ts tests/cli.test.ts tests/main.test.ts
       - name: Native archive and isolated installed consumer
