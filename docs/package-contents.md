@@ -16,6 +16,10 @@ declarations, the license, README and manifest.
 
 The native pack report must agree with actual compressed size, file inventory,
 file modes, byte sizes, unpacked size, manifest identity, SHA-1 and SHA-512.
+Native npm releases emit either a single-element array or an object keyed by
+package name. Both shapes must contain exactly one complete package report.
+A keyed report must bind its key to the validated manifest name; extra packages
+and every existing archive or metadata inconsistency still fail.
 Malformed JSON or UTF-8, unsafe archive filenames and inconsistent metadata
 fail. Reports and archives are saved only after content validation succeeds. The
 complete bounded archive is supplied to the reader at once. Native TAR parsing
@@ -43,6 +47,9 @@ It validates public import/type metadata and native CLI registration, imports
 through the public export map, invokes the registered CLI using npm exec and
 compiles a strictly typed consumer against the shipped declarations. Status,
 stdout and stderr must match each probe exactly; timeouts and tool errors fail.
+The npm wrapper uses error-level logging to exclude its informational run
+notices from the product stream contract. Product stderr remains fully captured
+and must match; npm failures still produce a failing status.
 Receipts are saved only after all consumer checks pass. Native archives with
 broken declarations, CLI metadata, import metadata or runtime behavior fail.
 Copy/rename tests, reproducibility and hosted matrices remain pending. No

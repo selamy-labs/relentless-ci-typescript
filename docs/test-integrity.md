@@ -25,8 +25,13 @@ mismatches. Faulty fixtures live in temporary projects and do not require
 exclusions from owned source.
 
 The supported discovery convention is `tests/**/*.test.ts`. Static detection of
-test-like files using other names, per-test retry overrides, and additional
-suppression policies remain pending. This gate validates runner results; it does
+test-like files using other names remains pending. The native ESLint probes
+reject focused, skipped, alternate Node imports and weakening retry options.
+They first assert a clean analyzer setup before the negative cases. A separate
+behavioral witness passes the imported configuration to native ESLint and
+requires its test plugin to reject a focused case. This catches missing plugin
+registration and an incorrect test-file scope during full mutation.
+This gate validates runner results; it does
 not establish that every behavior has a meaningful assertion. Property, coverage
 and mutation gates provide separate evidence for that requirement.
 

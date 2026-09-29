@@ -82,6 +82,7 @@ test("installs only the archive offline and checks public API, CLI and shipped t
     "exec",
     "--offline",
     "--no",
+    "--loglevel=error",
     "--",
     "relentless-example",
   ];

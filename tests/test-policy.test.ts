@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { ESLint, type Linter } from "eslint";
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
 import eslintConfig from "../eslint.config.mjs";
 
 // JSON import types widen rule severity strings. ESLint validates this native
@@ -9,6 +9,16 @@ const overrideConfig = eslintConfig as Linter.Config[];
 const filePath = resolve("tests/test-policy.test.ts");
 const imports = 'import { test, describe, expect } from "vitest";\n';
 const body = '"example", () => { expect(1).toBe(1); }';
+
+beforeAll(async () => {
+  const results = await new ESLint({
+    overrideConfig,
+    overrideConfigFile: true,
+  }).lintText(`${imports}describe("ordinary", () => { test(${body}); });`, {
+    filePath,
+  });
+  expect(results.flatMap((result) => result.messages)).toEqual([]);
+});
 
 test.each([
   ["test.only", "vitest/no-focused-tests"],

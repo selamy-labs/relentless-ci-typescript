@@ -68,12 +68,36 @@ afterEach(() => {
     rmSync(root, { recursive: true, force: true });
 });
 
-test("validates the actual native archive against public source bytes", () => {
-  const { archive, report } = fixture();
-  expect(() => {
-    verifyPackage(report, archive, expected);
-  }).not.toThrow();
-});
+test.each(["array", "map"])(
+  "validates native %s report against public source bytes",
+  (format) => {
+    const { archive, report } = fixture();
+    expect(() => {
+      verifyPackage(
+        format === "array" ? report : { sample: report[0] },
+        archive,
+        expected,
+      );
+    }).not.toThrow();
+  },
+);
+
+test.each(["wrong-key", "extra-package", "missing-package", "wrong-size"])(
+  "rejects npm keyed report defect %s",
+  (defect) => {
+    const { archive, report } = fixture();
+    const maps = {
+      "wrong-key": { other: report[0] },
+      "extra-package": { sample: report[0], other: report[0] },
+      "missing-package": {},
+      "wrong-size": { sample: { ...report[0], size: 0 } },
+    };
+    const value = maps[defect as keyof typeof maps];
+    expect(() => {
+      verifyPackage(value, archive, expected);
+    }).toThrow();
+  },
+);
 
 test.each([
   "name",

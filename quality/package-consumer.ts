@@ -24,6 +24,7 @@ function behavior(consumer: string, name: string, timeout: number): void {
     "exec",
     "--offline",
     "--no",
+    "--loglevel=error",
     "--",
     "relentless-example",
   ];

@@ -7,19 +7,18 @@ import policy from "./package-policy.json" with { type: "json" };
 const text = z.string().min(1);
 const count = z.number().int().nonnegative();
 const file = z.object({ path: text, size: count, mode: count });
-const schema = z.tuple([
-  z.object({
-    name: text,
-    version: text,
-    filename: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.tgz(?![\s\S])/u),
-    size: count,
-    unpackedSize: count,
-    entryCount: count,
-    shasum: text,
-    integrity: text,
-    files: z.array(file).min(1),
-  }),
-]);
+const reportSchema = z.object({
+  name: text,
+  version: text,
+  filename: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.tgz(?![\s\S])/u),
+  size: count,
+  unpackedSize: count,
+  entryCount: count,
+  shasum: text,
+  integrity: text,
+  files: z.array(file).min(1),
+});
+const schema = z.tuple([reportSchema]);
 interface Entry {
   bytes: Buffer;
   mode: number;
@@ -27,7 +26,13 @@ interface Entry {
 type Report = z.infer<typeof schema>[0];
 
 export function packReport(value: unknown): Report {
-  return schema.parse(value)[0];
+  if (Array.isArray(value)) return schema.parse(value)[0];
+  const entries = Object.entries(z.record(text, reportSchema).parse(value));
+  const [name, report] = z
+    .tuple([z.tuple([text, reportSchema])])
+    .parse(entries)[0];
+  same(name, report.name);
+  return report;
 }
 
 function same(actual: unknown, expected: unknown): void {

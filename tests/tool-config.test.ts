@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { ESLint } from "eslint";
+import { ESLint, type Linter } from "eslint";
 import { expect, test } from "vitest";
 import eslintConfig from "../eslint.config.mjs";
 import vitestConfig from "../vitest.config.js";
@@ -50,6 +50,18 @@ test("native ESLint configuration enforces strict semantic rules", async () => {
   );
   expect(rules(result)).toContain("@typescript-eslint/no-explicit-any");
 }, 30_000);
+
+test("native imported configuration enrolls the focused-test plugin", async () => {
+  const linter = new ESLint({
+    overrideConfig: eslintConfig as Linter.Config[],
+    overrideConfigFile: true,
+  });
+  const results = await linter.lintText(
+    'import { test, expect } from "vitest"; test.only("focus", () => { expect(1).toBe(1); });',
+    { filePath: resolve("tests/tool-config.test.ts") },
+  );
+  expect(rules(results)).toContain("vitest/no-focused-tests");
+});
 
 test.each([399, 400])("counts %s physical comment lines", async (count) => {
   const result = await new ESLint().lintText("// comment\n".repeat(count), {
