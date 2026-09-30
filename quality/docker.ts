@@ -1,18 +1,17 @@
 import { spawnSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
-import { mkdirSync } from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
+import { mkdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { z } from "zod";
 
-const image =
-  "ghcr.io/jdx/mise:2026.9.17-debian@sha256:96b00319506c7ae46d2a561ba7da60723c723327d796334847c2802827cc6ec5";
 const versions = {
   22: "22.23.2",
   24: "24.19.0",
   26: "26.4.0",
 } as const;
 const dockerTimeout = 7_200_000;
+const buildTimeout = 600_000;
 type NativeResult = ReturnType<typeof spawnSync>;
 
 function requireSuccess(result: NativeResult, purpose: string): void {
@@ -27,6 +26,20 @@ export function runtimeVersion(major: number): string {
   return versions[supported.parse(major)];
 }
 
+export function buildImage(root: string): string {
+  const dockerfile = readFileSync(join(root, "quality", "verifier.Dockerfile"));
+  const digest = createHash("sha256").update(dockerfile).digest("hex");
+  const tag = `relentless-ci-verifier:${digest}`;
+  const result = spawnSync("docker", ["build", "--pull", "--tag", tag, "-"], {
+    cwd: root,
+    input: dockerfile,
+    stdio: ["pipe", "inherit", "inherit"],
+    timeout: buildTimeout,
+  });
+  requireSuccess(result, "Docker image build");
+  return tag;
+}
+
 export function containerArguments(
   root: string,
   cache: string,
@@ -34,12 +47,13 @@ export function containerArguments(
   major: number,
   uid: number,
   gid: number,
+  runtimeImage: string,
 ): string[] {
   return [
     "run",
     "--name=" + name,
     "--read-only",
-    `--tmpfs=/tmp:rw,nosuid,nodev,uid=${String(uid)},gid=${String(gid)}`,
+    `--tmpfs=/tmp:rw,exec,nosuid,nodev,uid=${String(uid)},gid=${String(gid)}`,
     "--pids-limit=512",
     "--cap-drop=ALL",
     "--security-opt=no-new-privileges",
@@ -52,7 +66,7 @@ export function containerArguments(
     `--mount=type=bind,src=${cache},dst=/mise-data`,
     "--workdir=/workspace",
     "--entrypoint=/usr/local/bin/mise",
-    image,
+    runtimeImage,
     "exec",
     "--yes",
     `node@${runtimeVersion(major)}`,
@@ -91,6 +105,7 @@ export function runDockerVerifier(
   }
   const name = `relentless-ci-${randomUUID().replaceAll("-", "")}`;
   mkdirSync(cache, { recursive: true, mode: 0o700 });
+  const runtimeImage = buildImage(root);
   const args = containerArguments(
     root,
     cache,
@@ -98,6 +113,7 @@ export function runDockerVerifier(
     major,
     process.getuid(),
     process.getgid(),
+    runtimeImage,
   );
   try {
     const result = spawnSync("docker", args, {

@@ -1,7 +1,9 @@
 import { spawnSync } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, expect, test, vi } from "vitest";
 import {
+  buildImage,
   containerArguments,
   removeContainer,
   runDockerVerifier,
@@ -12,6 +14,13 @@ import { temporaryDirectories } from "./temporary-directory.js";
 vi.mock("node:child_process", () => ({ spawnSync: vi.fn() }));
 const native = vi.mocked(spawnSync);
 const repository = temporaryDirectories("relentless-docker-runner-");
+
+function dockerRepository(): string {
+  const root = repository();
+  mkdirSync(join(root, "quality"));
+  writeFileSync(join(root, "quality", "verifier.Dockerfile"), "FROM pinned\n");
+  return root;
+}
 
 function result(status: number, stderr = "") {
   return { pid: 1, output: [], stdout: "", stderr, status, signal: null };
@@ -45,17 +54,67 @@ test("launches an isolated non-root container without host sockets or secrets", 
     24,
     1001,
     1002,
+    "relentless-ci-verifier:tested",
   );
   expect(args).toContain("--read-only");
   expect(args).toContain("--cap-drop=ALL");
   expect(args).toContain("--security-opt=no-new-privileges");
   expect(args).toContain("--user=1001:1002");
+  expect(args).toContain("--tmpfs=/tmp:rw,exec,nosuid,nodev,uid=1001,gid=1002");
   expect(args).toContain("--mount=type=bind,src=/repository,dst=/workspace");
   expect(args).toContain("--mount=type=bind,src=/cache,dst=/mise-data");
   expect(args).toContain("node@24.19.0");
+  expect(args).toContain("relentless-ci-verifier:tested");
   expect(args.join(" ")).not.toContain("docker.sock");
   expect(args.join(" ")).not.toContain("GH_TOKEN");
   expect(args.join(" ")).not.toContain("--privileged");
+});
+
+test("builds from the complete reviewed Dockerfile through stdin", () => {
+  const root = dockerRepository();
+  native.mockReturnValue(result(0));
+  const image = buildImage(root);
+  expect(image).toMatch(/^relentless-ci-verifier:[0-9a-f]{64}$/u);
+  expect(native.mock.calls[0]?.[1]).toEqual([
+    "build",
+    "--pull",
+    "--tag",
+    image,
+    "-",
+  ]);
+  expect(native.mock.calls[0]?.[2]).toMatchObject({
+    cwd: root,
+    input: Buffer.from("FROM pinned\n"),
+  });
+});
+
+test("a Dockerfile change selects a fresh image identity", () => {
+  const root = dockerRepository();
+  native.mockReturnValue(result(0));
+  const before = buildImage(root);
+  writeFileSync(join(root, "quality", "verifier.Dockerfile"), "FROM revised\n");
+  const after = buildImage(root);
+  expect(after).not.toBe(before);
+  expect(native.mock.calls[1]?.[2]).toMatchObject({
+    input: Buffer.from("FROM revised\n"),
+  });
+});
+
+test("a failed image build prevents container execution", () => {
+  const root = dockerRepository();
+  native.mockReturnValue(result(1));
+  expect(() => {
+    runDockerVerifier(root, 22, join(root, "cache"));
+  }).toThrow("Docker image build failed");
+  expect(native.mock.calls.map((call) => call[1]?.[0])).toEqual(["build"]);
+});
+
+test("a missing Dockerfile prevents image build and verifier execution", () => {
+  const root = repository();
+  expect(() => {
+    runDockerVerifier(root, 22, join(root, "cache"));
+  }).toThrow();
+  expect(native).not.toHaveBeenCalled();
 });
 
 test("removes only the named container and requires absent readback", () => {
@@ -109,9 +168,10 @@ test.each([
 test.each([0, 9])(
   "always cleans an owned container after Docker exit %i",
   (status) => {
-    const root = repository();
+    const root = dockerRepository();
     const cache = join(root, "cache");
     native.mockImplementation((_command, args) => {
+      if (args?.[0] === "build") return result(0);
       if (args?.[0] === "run") return result(status);
       if (args?.[0] === "rm") return result(0);
       return result(1, "No such object");
@@ -126,6 +186,7 @@ test.each([0, 9])(
       }).toThrow("Docker verifier failed");
     }
     expect(native.mock.calls.map((call) => call[1]?.[0])).toEqual([
+      "build",
       "run",
       "rm",
       "inspect",
@@ -134,9 +195,10 @@ test.each([0, 9])(
 );
 
 test("propagates a Docker launch error after removing the owned container", () => {
-  const root = repository();
+  const root = dockerRepository();
   const failure = new Error("Docker daemon unavailable");
   native.mockImplementation((_command, args) => {
+    if (args?.[0] === "build") return result(0);
     if (args?.[0] === "run") return { ...result(1), error: failure };
     if (args?.[0] === "rm") return result(0);
     return result(1, "No such object");
@@ -145,6 +207,7 @@ test("propagates a Docker launch error after removing the owned container", () =
     runDockerVerifier(root, 22, join(root, "cache"));
   }).toThrow(failure);
   expect(native.mock.calls.map((call) => call[1]?.[0])).toEqual([
+    "build",
     "run",
     "rm",
     "inspect",

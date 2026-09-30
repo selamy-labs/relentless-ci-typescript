@@ -23,14 +23,18 @@ definitions, scans secrets/dependencies/source security, and runs full mutation
 testing. Tool downloads and vulnerability queries need network access; code
 checks require no accounts or credentials. Mise pins native scanner versions and
 platform artifact hashes. A missing tool, failed command, malformed report or
-incomplete inventory fails verification. On Linux, a pinned container supplies
-Mise and the exact declared Node patch version. It keeps the verifier and its
-descendants in a private PID namespace, checks for live processes between major
-stages, and removes the named container with an absence readback even after a
-failed gate. The container runs as the invoking user with a read-only root
-filesystem and dropped capabilities. The launcher passes no host credential
-environment variables and mounts no Docker socket or host credential directory;
-the checkout and a dedicated Mise tool cache are its writable mounts.
+incomplete inventory fails verification. On Linux, a container built from a
+digest-pinned Mise image and an exact `libatomic1` package version supplies
+Mise and the declared Node patch version. The build reads the checked-in
+`quality/verifier.Dockerfile` and hashes it into the local image identity, so
+changed image policy cannot silently reuse a stale build. It keeps the verifier
+and its descendants in a private PID namespace, checks for live processes
+between major stages, and removes the named container with an absence readback
+even after a failed gate. The container runs as the invoking user with a
+read-only root filesystem and dropped capabilities. The launcher passes no host
+credential environment variables and mounts no Docker socket or host credential
+directory. The checkout and a dedicated Mise tool cache are its writable mounts.
+The private `/tmp` filesystem permits executable installed-package probes.
 The complete product verifier in this container still needs full local mutation
 and hosted matrix qualification; the boundary has only passed focused probes.
 
