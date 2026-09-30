@@ -26,8 +26,8 @@ file or npm dependency is excluded by this declaration.
 
 The checked-in workflow runs the full local verifier on Linux for Node 22, 24
 and 26. The Linux command builds a verifier image from a digest-pinned Mise
-base and exact `libatomic1` package version, then launches it with a private
-PID namespace. The host command retains only the
+base and exact `libatomic1` and `procps` package versions, then launches it
+with a private PID namespace. The host command retains only the
 checked-out workspace and dedicated tool cache mounts and confirms named
 container removal on completion. A final container guard rejects any live
 descendant, including one that detached from a direct child. A restricted

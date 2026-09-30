@@ -24,11 +24,12 @@ testing. Tool downloads and vulnerability queries need network access; code
 checks require no accounts or credentials. Mise pins native scanner versions and
 platform artifact hashes. A missing tool, failed command, malformed report or
 incomplete inventory fails verification. On Linux, a container built from a
-digest-pinned Mise image and an exact `libatomic1` package version supplies
-Mise and the declared Node patch version. The build reads the checked-in
-`quality/verifier.Dockerfile` and hashes it into the local image identity, so
-changed image policy cannot silently reuse a stale build. It keeps the verifier
-and its descendants in a private PID namespace, checks for live processes
+digest-pinned Mise image and exact `libatomic1` and `procps` package versions
+supplies Mise, the declared Node patch version and Stryker's process inspector.
+The build hashes the checked-in `quality/verifier.Dockerfile` into the local
+image identity, so a changed image policy cannot reuse a stale build. The
+container keeps the verifier and its descendants in a private PID namespace,
+checks for live processes
 between major stages, and removes the named container with an absence readback
 even after a failed gate. The container runs as the invoking user with a
 read-only root filesystem and dropped capabilities. The launcher passes no host
