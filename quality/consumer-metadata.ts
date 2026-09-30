@@ -10,7 +10,7 @@ const metadata = z.object({
       import: z.literal("./dist/index.js"),
     }),
   }),
-  bin: z.object({ "relentless-example": z.literal("dist/main.js") }),
+  bin: z.object({ "interval-generated-ts": z.literal("dist/main.js") }),
 });
 
 export function verifyConsumerMetadata(consumer: string, name: string): void {
@@ -18,7 +18,7 @@ export function verifyConsumerMetadata(consumer: string, name: string): void {
     readJson(join(consumer, "node_modules", name, "package.json")),
   );
   if (
-    !existsSync(join(consumer, "node_modules", ".bin", "relentless-example"))
+    !existsSync(join(consumer, "node_modules", ".bin", "interval-generated-ts"))
   ) {
     throw new Error("installed CLI registration is missing");
   }
