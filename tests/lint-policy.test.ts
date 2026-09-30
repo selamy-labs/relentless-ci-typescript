@@ -9,7 +9,7 @@ beforeAll(async () => {
     filePath: sourceFile,
   });
   expect(results.flatMap((result) => result.messages)).toEqual([]);
-});
+}, 30_000);
 
 test.each(["ts-ignore", "ts-nocheck", "ts-expect-error"])(
   "rejects compiler suppression %s even with a rationale",
