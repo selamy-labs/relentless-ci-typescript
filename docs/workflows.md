@@ -45,11 +45,11 @@ analysis receipts are retained for seven days. Daily runs repeat the same checks
 against main to detect newly disclosed dependency vulnerabilities.
 
 Native local probes establish scanner behavior and aggregate-state rejection.
-The published `main` revision `3b43532` passed its first hosted run across all
-three full Node analyses and nine installed-behavior jobs. The protected branch
-strictly requires the aggregate `Relentless CI gate` from the GitHub Actions
-App. This is interim enforcement: a dedicated trusted-policy check, source-bound
-maintainer rationale, and live bypass probes remain outstanding. The
-`CODEOWNERS` file assigns the whole repository, including `.github`, to the two
-current administrators. Code-owner review is not enforced until the file is on
-protected `main` and that branch's review setting is enabled and read back.
+The source template's protected `main` requires the aggregate `Relentless CI
+gate` from the GitHub Actions App. That check alone does not establish
+source-bound maintainer rationale for gate weakening; a separately trusted
+policy issuer and live bypass probes are also required. The `CODEOWNERS` file
+assigns the whole repository, including `.github`, to the two current
+administrators. Code-owner review takes effect only after the file is on
+protected `main` and the native review setting is enabled and read back. A
+generated repository must configure and verify its own protection settings.

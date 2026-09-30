@@ -3,9 +3,10 @@
 A framework-neutral starting point for a small typed library and JSON CLI, with
 strict quality checks that also test their executable verifiers.
 
-This is an implementation draft. Local gates are verified; public hosted CI, the
-runtime/platform matrix and live repository protections are still being
-completed. See individual gate documents for precise scope and limitations.
+The checked-in gates run locally and in the declared GitHub Actions matrix.
+Each generated repository must separately configure protected-branch checks,
+code-owner review and a trusted policy issuer before treating those results as
+enforced. See individual gate documents for precise scope and limitations.
 
 ## Run the full local verifier
 
