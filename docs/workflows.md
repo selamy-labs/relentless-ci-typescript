@@ -25,7 +25,14 @@ package. Its CI installer is pinned by version and digest. No verifier source
 file or npm dependency is excluded by this declaration.
 
 The checked-in workflow runs the full local verifier on Linux for Node 22, 24
-and 26. All three runtimes build and test product behavior and an isolated
+and 26. The Linux command launches the checked-in verifier inside a pinned
+Docker image with a private PID namespace; the host command retains only the
+checked-out workspace and dedicated tool cache mounts and confirms named
+container removal on completion. A final container guard rejects any live
+descendant, including one that detached from a direct child. A restricted
+Docker boundary probe passed on standard hosted Ubuntu 24.04, but the complete
+containerized verifier and mutation matrix remain to be qualified.
+All three runtimes build and test product behavior and an isolated
 installed package on Linux, macOS and Windows. Standard hosted runners use
 read-only permissions, no persisted checkout credentials and pinned action
 commits. Installer caches are disabled. Candidate-specific concurrency groups

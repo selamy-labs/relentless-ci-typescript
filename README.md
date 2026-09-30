@@ -9,7 +9,9 @@ completed. See individual gate documents for precise scope and limitations.
 
 ## Run the full local verifier
 
-Prerequisites: Node.js 22, 24 or 26, npm, Git and [Mise](https://mise.jdx.dev/).
+Prerequisites: Node.js 22, 24 or 26, npm and Git. Linux full verification
+also requires a running Docker daemon; macOS and Windows currently use the
+host-installed [Mise](https://mise.jdx.dev/) toolchain.
 Run from the repository root:
 
 ```sh
@@ -21,7 +23,16 @@ definitions, scans secrets/dependencies/source security, and runs full mutation
 testing. Tool downloads and vulnerability queries need network access; code
 checks require no accounts or credentials. Mise pins native scanner versions and
 platform artifact hashes. A missing tool, failed command, malformed report or
-incomplete inventory fails verification.
+incomplete inventory fails verification. On Linux, a pinned container supplies
+Mise and the exact declared Node patch version. It keeps the verifier and its
+descendants in a private PID namespace, checks for live processes between major
+stages, and removes the named container with an absence readback even after a
+failed gate. The container runs as the invoking user with a read-only root
+filesystem and dropped capabilities. The launcher passes no host credential
+environment variables and mounts no Docker socket or host credential directory;
+the checkout and a dedicated Mise tool cache are its writable mounts.
+The complete product verifier in this container still needs full local mutation
+and hosted matrix qualification; the boundary has only passed focused probes.
 
 The configured local tools include strict TypeScript, ESLint/SonarJS, Prettier,
 Knip, Vitest/fast-check, dependency-cruiser and Stryker. Strict policy values
