@@ -1,15 +1,21 @@
-import { spawnSync } from "node:child_process";
+import { spawnSync, type SpawnSyncOptions } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
+type Executor = (
+  command: string,
+  arguments_: string[],
+  options: SpawnSyncOptions,
+) => ReturnType<typeof spawnSync>;
+
 function processState(path: string): string | undefined {
   try {
-    const status = readFileSync(path, "utf8");
+    const status = readFileSync(path).toString();
     const match = /^State:\s+([A-Z])/mu.exec(status);
     if (!match) throw new Error("process state is missing");
     return match[1];
   } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return undefined;
     }
     throw error;
@@ -42,11 +48,12 @@ export function runCommand(
   command: string,
   arguments_: string[],
   timeout: number,
+  execute: Executor = spawnSync,
 ): void {
   if (!Number.isSafeInteger(timeout) || timeout <= 0) {
     throw new Error("command timeout must be positive and finite");
   }
-  const result = spawnSync(command, arguments_, {
+  const result = execute(command, arguments_, {
     cwd: process.cwd(),
     stdio: "inherit",
     timeout,

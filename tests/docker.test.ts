@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { homedir } from "node:os";
 import { afterEach, expect, test, vi } from "vitest";
 import {
   buildImage,
@@ -26,7 +27,39 @@ function result(status: number, stderr = "") {
   return { pid: 1, output: [], stdout: "", stderr, status, signal: null };
 }
 
+function dockerRunIdentity(): { name: string; image: string } {
+  const arguments_ = native.mock.calls[1]?.[1] as string[];
+  const name = arguments_[1]?.replace(/^--name=/u, "") ?? "";
+  const image = arguments_[16] ?? "";
+  expect(name).toMatch(/^relentless-ci-[0-9a-f]{32}$/u);
+  expect(image).toMatch(/^relentless-ci-verifier:[0-9a-f]{64}$/u);
+  return { name, image };
+}
+
+function expectDockerRun(root: string, cache: string): void {
+  const run = native.mock.calls[1];
+  const { name, image } = dockerRunIdentity();
+  expect(run?.[0]).toBe("docker");
+  expect(run?.[1]).toEqual(
+    containerArguments(
+      root,
+      cache,
+      name,
+      22,
+      process.getuid?.() ?? -1,
+      process.getgid?.() ?? -1,
+      image,
+    ),
+  );
+  expect(run?.[2]).toMatchObject({
+    cwd: root,
+    stdio: "inherit",
+    timeout: 7_200_000,
+  });
+}
+
 afterEach(() => {
+  for (const call of native.mock.calls) expect(call[0]).toBe("docker");
   vi.resetAllMocks();
   vi.unstubAllGlobals();
 });
@@ -68,6 +101,31 @@ test("launches an isolated non-root container without host sockets or secrets", 
   expect(args.join(" ")).not.toContain("docker.sock");
   expect(args.join(" ")).not.toContain("GH_TOKEN");
   expect(args.join(" ")).not.toContain("--privileged");
+  expect(args).toEqual([
+    "run",
+    "--name=owned-unit",
+    "--read-only",
+    "--tmpfs=/tmp:rw,exec,nosuid,nodev,uid=1001,gid=1002",
+    "--pids-limit=512",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--user=1001:1002",
+    "--env=HOME=/tmp",
+    "--env=MISE_DATA_DIR=/mise-data",
+    "--env=MISE_CACHE_DIR=/mise-data/cache",
+    "--env=MISE_STATE_DIR=/mise-data/state",
+    "--mount=type=bind,src=/repository,dst=/workspace",
+    "--mount=type=bind,src=/cache,dst=/mise-data",
+    "--workdir=/workspace",
+    "--entrypoint=/usr/local/bin/mise",
+    "relentless-ci-verifier:tested",
+    "exec",
+    "--yes",
+    "node@24.19.0",
+    "--",
+    "node",
+    ".quality-build/quality/container-guardian-main.js",
+  ]);
 });
 
 test("builds from the complete reviewed Dockerfile through stdin", () => {
@@ -85,6 +143,8 @@ test("builds from the complete reviewed Dockerfile through stdin", () => {
   expect(native.mock.calls[0]?.[2]).toMatchObject({
     cwd: root,
     input: Buffer.from("FROM pinned\n"),
+    stdio: ["pipe", "inherit", "inherit"],
+    timeout: 600_000,
   });
 });
 
@@ -128,6 +188,14 @@ test("removes only the named container and requires absent readback", () => {
     ["rm", "-f", "owned-unit"],
     ["inspect", "owned-unit"],
   ]);
+  expect(native.mock.calls[0]?.[2]).toEqual({
+    encoding: "utf8",
+    timeout: 30_000,
+  });
+  expect(native.mock.calls[1]?.[2]).toEqual({
+    encoding: "utf8",
+    timeout: 30_000,
+  });
 });
 
 test("a missing pre-creation container is acceptable only with absent readback", () => {
@@ -153,16 +221,29 @@ test("accepts the lowercase absence report from native Docker", () => {
 });
 
 test.each([
-  [result(1, "permission denied"), result(1, "No such object")],
-  [result(0), result(0)],
-  [result(0), result(1, "daemon unavailable")],
-])("fails closed on incomplete Docker cleanup", (remove, inspect) => {
+  [
+    result(1, "permission denied"),
+    result(1, "No such object"),
+    "owned Docker container cleanup failed",
+  ],
+  [result(0), result(0), "owned Docker container remains after cleanup"],
+  [
+    result(0),
+    result(0, "No such object"),
+    "owned Docker container remains after cleanup",
+  ],
+  [
+    result(0),
+    result(1, "daemon unavailable"),
+    "owned Docker container remains after cleanup",
+  ],
+])("fails closed on incomplete Docker cleanup", (remove, inspect, message) => {
   native.mockImplementation((_command, args) =>
     args?.[0] === "rm" ? remove : inspect,
   );
   expect(() => {
     removeContainer("owned-unit");
-  }).toThrow();
+  }).toThrow(message);
 });
 
 test.each([0, 9])(
@@ -191,8 +272,21 @@ test.each([0, 9])(
       "rm",
       "inspect",
     ]);
+    expectDockerRun(root, cache);
   },
 );
+
+test("default cache stays under the user's private cache directory", () => {
+  const root = dockerRepository();
+  native.mockImplementation((_command, args) => {
+    if (args?.[0] === "inspect") return result(1, "No such object");
+    return result(0);
+  });
+  runDockerVerifier(root, 22);
+  expect(native.mock.calls[1]?.[1]).toContain(
+    `--mount=type=bind,src=${join(homedir(), ".cache", "relentless-ci", "mise")},dst=/mise-data`,
+  );
+});
 
 test("propagates a Docker launch error after removing the owned container", () => {
   const root = dockerRepository();
