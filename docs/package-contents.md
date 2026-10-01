@@ -50,10 +50,17 @@ stdout and stderr must match each probe exactly; timeouts and tool errors fail.
 The npm wrapper uses error-level logging to exclude its informational run
 notices from the product stream contract. Product stderr remains fully captured
 and must match; npm failures still produce a failing status.
+Installed behavior inherits only platform process plumbing, with its home and
+temporary directories bound to the fresh consumer. Caller credentials and
+arbitrary environment variables do not reach the package. A Node preload
+rejects `fetch`, TCP/TLS, HTTP(S) and UDP calls before the public API, CLI or
+type consumer runs. Native probes deliberately attempt each network API and
+require the guard's failure message. The installed archive and npm execution
+remain offline, and the owned consumer directory is removed on every outcome.
 Receipts are saved only after all consumer checks pass. Native archives with
 broken declarations, CLI metadata, import metadata or runtime behavior fail.
-Copy/rename tests, reproducibility and hosted matrices remain pending. No
-registry publishing is part of this template.
+A fresh renamed copy and hosted matrix from the eventual final head remain
+pending. No registry publishing is part of this template.
 
 Native semantics: [npm pack](https://docs.npmjs.com/cli/v11/commands/npm-pack/)
 and [node-tar](https://github.com/isaacs/node-tar).

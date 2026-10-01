@@ -1,5 +1,27 @@
 import { expect, test } from "vitest";
-import { consumerNode } from "../quality/consumer-command.js";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import {
+  consumerEnvironment,
+  consumerNode,
+} from "../quality/consumer-command.js";
+
+test.each([
+  "fetch('http://127.0.0.1:9')",
+  "require('node:net').connect(9,'127.0.0.1')",
+  "require('node:tls').connect(9,'127.0.0.1')",
+  "require('node:http').get('http://127.0.0.1:9')",
+  "require('node:https').get('https://127.0.0.1:9')",
+  "require('node:dgram').createSocket('udp4').send(Buffer.from('x'),9,'127.0.0.1')",
+])("native installed-consumer guard blocks network call %s", (code) => {
+  const result = spawnSync(process.execPath, ["-e", code], {
+    env: consumerEnvironment(tmpdir()),
+    encoding: "utf8",
+    timeout: 5000,
+  });
+  expect(result.status).not.toBe(0);
+  expect(result.stderr).toContain("installed consumer network access denied");
+});
 
 test("native Node preserves stdin, stdout, stderr and the expected nonzero CLI status", () => {
   consumerNode(
