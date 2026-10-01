@@ -9,7 +9,7 @@ private ESM manifest and is removed after success or failure.
 
 The initial template intentionally has one ESM public export and one CLI. Its
 protected metadata contract declares `./dist/index.js`, `./dist/index.d.ts` and
-the `relentless-example` executable targeting `dist/main.js`. Incorrect or
+the `interval-generated-ts` executable targeting `dist/main.js`. Incorrect or
 missing declarations fail. Native CLI registration must exist before execution;
 npm exec selects the installed command with `--offline --no` to forbid
 installation prompts or network fallback.
