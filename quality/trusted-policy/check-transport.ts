@@ -1,7 +1,6 @@
 /** Fixed GitHub CLI transport for a dedicated installation-token check. */
 
 import { execFileSync } from "node:child_process";
-import { isAbsolute } from "node:path";
 import type { CheckPayload, CheckTransport } from "./check-publisher.js";
 import {
   decodeResponse,
@@ -21,9 +20,6 @@ export function checkTransport(
   execute: Execute = execFileSync,
 ): CheckTransport {
   const root = repositoryRoute(repository);
-  if (!isAbsolute(executable)) {
-    throw new Error("dedicated App CLI needs an absolute executable path");
-  }
   const read = githubApi(executable, repository, execute);
   return {
     get: (route) => Promise.resolve(read(route)),
