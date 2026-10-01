@@ -99,7 +99,11 @@ test.each([
   const body = checkPayload(HEAD, true);
   expect(() =>
     verifyCheckResponse({ ...response(body), [field]: value }, body, 41),
-  ).toThrow();
+  ).toThrow(
+    field === "id"
+      ? undefined
+      : "native check differs from the dedicated App decision",
+  );
 });
 
 test("rejects a changed readback identity", async () => {

@@ -1,10 +1,11 @@
 /** Publish a fixed, App-owned policy check and verify its native readback. */
 
 import { z } from "zod";
+import { repositoryRoute } from "./github-read.js";
+import { digest } from "./review-fields.js";
 
 export const CHECK_NAME = "Relentless trusted policy";
 
-const sha = z.string().regex(/^[0-9a-f]{40}$/u);
 const positiveId = z.number().int().positive();
 const checkResponse = z.object({
   id: positiveId,
@@ -29,11 +30,11 @@ export interface CheckTransport {
 }
 
 export function checkPayload(head: unknown, passed: unknown): CheckPayload {
-  const digest = sha.parse(head);
+  const headSha = digest(head);
   const decision = z.boolean().parse(passed);
   return {
     name: CHECK_NAME,
-    head_sha: digest,
+    head_sha: headSha,
     status: "completed",
     conclusion: decision ? "success" : "failure",
     output: {
@@ -64,21 +65,6 @@ export function verifyCheckResponse(
   return check.id;
 }
 
-function repositoryRoute(repository: unknown): string {
-  const value = z.string().parse(repository);
-  const parts = value.split("/");
-  if (
-    parts.length !== 2 ||
-    parts.some(
-      (part) =>
-        !/^[A-Za-z0-9_.-]+$/u.test(part) || part === "." || part === "..",
-    )
-  ) {
-    throw new Error("repository identity is invalid");
-  }
-  return `repos/${value}/check-runs`;
-}
-
 export async function publishCheck(
   transport: CheckTransport,
   repository: unknown,
@@ -86,7 +72,7 @@ export async function publishCheck(
   head: unknown,
   passed: unknown,
 ): Promise<number> {
-  const route = repositoryRoute(repository);
+  const route = `${repositoryRoute(repository)}/check-runs`;
   const body = checkPayload(head, passed);
   positiveId.parse(appId);
   const created = await transport.post(route, body);
