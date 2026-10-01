@@ -25,7 +25,7 @@ function safeSuffix(suffix: string): boolean {
   if (!/^[A-Za-z0-9_./-]+(?:\?per_page=100&page=[1-9][0-9]*)?$/u.test(suffix)) {
     return false;
   }
-  const path = suffix.replace(/\?.*$/u, "");
+  const path = suffix.replace(/\?.*/u, "");
   return path
     .split("/")
     .every((part) => part !== "" && part !== "." && part !== "..");
@@ -37,8 +37,7 @@ export function endpointPath(endpoint: unknown, repository: unknown): string {
   if (typeof endpoint !== "string" || !endpoint.startsWith(`${root}/`)) {
     throw new Error("native read must stay within the trusted repository");
   }
-  const suffix = endpoint.slice(root.length + 1);
-  if (!safeSuffix(suffix)) {
+  if (!safeSuffix(endpoint)) {
     throw new Error("unsupported native metadata route or query");
   }
   return endpoint;
@@ -49,8 +48,8 @@ function assertObjectKeys(node: Node): void {
   const keys = new Set<string>();
   const properties = (node as Node & { children: Node[] }).children;
   for (const property of properties) {
-    const key = property.children?.[0]?.value as unknown;
-    if (typeof key !== "string" || keys.has(key)) {
+    const key = property.children?.[0]?.value as string;
+    if (keys.has(key)) {
       throw new Error("native metadata contains duplicate object keys");
     }
     keys.add(key);
@@ -59,20 +58,13 @@ function assertObjectKeys(node: Node): void {
 
 function uniqueKeys(node: Node): void {
   assertObjectKeys(node);
-  for (const child of node.children ?? []) uniqueKeys(child);
+  if (node.children === undefined) return;
+  for (const child of node.children) uniqueKeys(child);
 }
 
-function childValues(value: unknown): unknown[] {
-  if (Array.isArray(value)) return value as unknown[];
-  if (value !== null && typeof value === "object") return Object.values(value);
-  return [];
-}
-
-function finiteNumbers(value: unknown): void {
-  if (typeof value === "number" && !Number.isFinite(value)) {
-    throw new Error("native metadata contains a nonfinite number");
-  }
-  for (const item of childValues(value)) finiteNumbers(item);
+function requiredTree(node: Node | undefined): Node {
+  if (node === undefined) throw new Error("native metadata is invalid JSON");
+  return node;
 }
 
 export function decodeResponse(bytes: Uint8Array): unknown {
@@ -81,13 +73,19 @@ export function decodeResponse(bytes: Uint8Array): unknown {
   }
   const source = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   const errors: ParseError[] = [];
-  const tree = parseTree(source, errors, { disallowComments: true });
-  if (tree === undefined || errors.length > 0) {
+  const tree = requiredTree(
+    parseTree(source, errors, { disallowComments: true }),
+  );
+  uniqueKeys(tree);
+  if (errors.length > 0) {
     throw new Error("native metadata is invalid JSON");
   }
-  uniqueKeys(tree);
-  const value: unknown = JSON.parse(source);
-  finiteNumbers(value);
+  const value: unknown = JSON.parse(source, (_key: string, item: unknown) => {
+    if (typeof item === "number" && !Number.isFinite(item)) {
+      throw new Error("native metadata contains a nonfinite number");
+    }
+    return item;
+  });
   return value;
 }
 
