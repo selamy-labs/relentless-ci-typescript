@@ -90,28 +90,46 @@ test("completed run retains event ID for native recheck", async () => {
 });
 
 test.each([
-  [ROOT, { id: 18, full_name: "owner/repo" }],
-  [ROOT, { id: 17, full_name: "elsewhere/repo" }],
+  [
+    ROOT,
+    { id: 18, full_name: "owner/repo" },
+    "trusted repository or protected base differs",
+  ],
+  [
+    ROOT,
+    { id: 17, full_name: "elsewhere/repo" },
+    "trusted repository or protected base differs",
+  ],
   [
     `${ROOT}/branches/main`,
     { name: "other", protected: true, commit: { sha: BASE } },
+    "trusted repository or protected base differs",
   ],
   [
     `${ROOT}/branches/main`,
     { name: "main", protected: false, commit: { sha: BASE } },
+    "trusted repository or protected base differs",
   ],
   [
     `${ROOT}/branches/main`,
     { name: "main", protected: true, commit: { sha: HEAD } },
+    "reviewed policy base is no longer current",
   ],
-  [`${ROOT}/pulls/2`, { head: { sha: HEAD }, base: { sha: HEAD } }],
-] as const)("rejects changed current native route %s", async (route, value) => {
-  const values = source();
-  values[route] = value;
-  await expect(
-    resolve(native(values).api, COMMENT, REVIEWED),
-  ).rejects.toThrow();
-});
+  [
+    `${ROOT}/pulls/2`,
+    { head: { sha: HEAD }, base: { sha: HEAD } },
+    "candidate base differs from reviewed policy",
+  ],
+] as const)(
+  "rejects changed current native route %s",
+  async (route, value, reason) => {
+    const values = source();
+    values[route] = value;
+    await expect(
+      resolve(native(values).api, COMMENT, REVIEWED),
+    ).rejects.toThrow(reason);
+  },
+);
 
 test.each([
   { event: "push" },
@@ -127,22 +145,24 @@ test.each([
     total_count: 1,
     workflow_runs: [],
   };
-  await expect(
-    resolve(native(values).api, COMMENT, REVIEWED),
-  ).rejects.toThrow();
+  await expect(resolve(native(values).api, COMMENT, REVIEWED)).rejects.toThrow(
+    "pull_requests" in change
+      ? "native metadata object required"
+      : "no successful native run associated with current PR head",
+  );
 });
 
 test("rejects trigger identity and empty matrix", async () => {
   const { api } = native(source());
   await expect(
     resolve(api, { ...COMMENT, repository: "other/repo" }, REVIEWED),
-  ).rejects.toThrow();
+  ).rejects.toThrow("trigger differs from reviewed repository or matrix");
   await expect(
     resolve(api, { ...COMMENT, repositoryId: 18 }, REVIEWED),
-  ).rejects.toThrow();
+  ).rejects.toThrow("trigger differs from reviewed repository or matrix");
   await expect(
     resolve(api, COMMENT, { ...REVIEWED, requiredNames: new Set() }),
-  ).rejects.toThrow();
+  ).rejects.toThrow("trigger differs from reviewed repository or matrix");
 });
 
 test("incomplete run inventory fails closed", async () => {
