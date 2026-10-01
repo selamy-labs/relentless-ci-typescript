@@ -24,6 +24,43 @@ function run(): Record<string, unknown> {
   };
 }
 
+function dispatch(): Record<string, unknown> {
+  return {
+    repository: { full_name: NAME, id: IDENTITY },
+    action: "relentless-policy-reevaluate",
+    client_payload: { pull_number: 2 },
+  };
+}
+
+test("dispatch contains only a PR lookup number", () => {
+  expect(parseEvent("repository_dispatch", dispatch(), NAME, IDENTITY)).toEqual(
+    {
+      kind: "dispatch",
+      repository: NAME,
+      repositoryId: IDENTITY,
+      pullNumber: 2,
+    },
+  );
+});
+
+test.each([
+  { action: "other" },
+  { client_payload: {} },
+  { client_payload: { pull_number: 0 } },
+  { client_payload: { pull_number: 2, verdict: "pass" } },
+  { client_payload: { pull_number: 2, head: "a".repeat(40) } },
+  { client_payload: { pull_number: "2" } },
+])("rejects dispatch fields beyond a valid lookup number", (changed) => {
+  expect(() =>
+    parseEvent(
+      "repository_dispatch",
+      { ...dispatch(), ...changed },
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow();
+});
+
 test.each(["created", "edited", "deleted"])(
   "treats %s as a request to reread current rationale",
   (action) => {

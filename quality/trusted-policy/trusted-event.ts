@@ -3,11 +3,31 @@
 import { identifier, record, text } from "./review-fields.js";
 
 export interface Trigger {
-  kind: "rationale" | "completed_run";
+  kind: "rationale" | "completed_run" | "dispatch";
   repository: string;
   repositoryId: number;
   pullNumber?: number;
   runId?: number;
+}
+
+function dispatchEvent(
+  event: Record<string, unknown>,
+  name: string,
+  id: number,
+): Trigger {
+  if (event.action !== "relentless-policy-reevaluate") {
+    throw new Error("unsupported policy dispatch action");
+  }
+  const payload = record(event.client_payload);
+  if (Object.keys(payload).length !== 1 || !("pull_number" in payload)) {
+    throw new Error("policy dispatch must contain only a PR lookup number");
+  }
+  return {
+    kind: "dispatch",
+    repository: name,
+    repositoryId: id,
+    pullNumber: identifier(payload.pull_number),
+  };
 }
 
 function requireRepository(value: unknown, name: string, id: number): void {
@@ -78,6 +98,8 @@ export function parseEvent(
 ): Trigger {
   const event = record(value);
   requireRepository(event.repository, expectedName, expectedId);
+  if (eventName === "repository_dispatch")
+    return dispatchEvent(event, expectedName, expectedId);
   if (eventName === "issue_comment")
     return rationaleEvent(event, expectedName, expectedId);
   if (eventName === "workflow_run")
