@@ -84,7 +84,7 @@ test("installs only the archive offline and checks public API, CLI and shipped t
     "--no",
     "--loglevel=error",
     "--",
-    "relentless-example",
+    "interval-generated-ts",
   ];
   expect(consumerNode).toHaveBeenNthCalledWith(
     2,

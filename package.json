@@ -1,5 +1,5 @@
 {
-  "name": "relentless-ci-typescript",
+  "name": "interval-normalizer-generated-ts",
   "version": "0.1.0",
   "description": "A strict, framework-neutral TypeScript starting point",
   "type": "module",
@@ -14,7 +14,7 @@
     }
   },
   "bin": {
-    "relentless-example": "dist/main.js"
+    "interval-generated-ts": "dist/main.js"
   },
   "files": [
     "dist"
