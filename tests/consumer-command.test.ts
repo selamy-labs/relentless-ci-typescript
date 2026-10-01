@@ -18,6 +18,14 @@ test("installed behavior gets only platform plumbing and a temporary home", () =
   expect(env.TMPDIR).toBe("/consumer");
   expect(env.NODE_OPTIONS).toMatch(/^--import=data:text\/javascript;base64,/u);
 });
+test("optional platform plumbing is copied only when present", () => {
+  vi.stubEnv("PATHEXT", ".EXE;.CMD");
+  expect(consumerEnvironment("/consumer").PATHEXT).toBe(".EXE;.CMD");
+  vi.stubEnv("PATHEXT", undefined);
+  expect(Object.hasOwn(consumerEnvironment("/consumer"), "PATHEXT")).toBe(
+    false,
+  );
+});
 test("uses structured Node arguments and validates all three process outputs", () => {
   vi.mocked(spawnSync).mockReturnValue({
     status: 0,
