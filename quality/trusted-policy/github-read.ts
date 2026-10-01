@@ -25,12 +25,10 @@ function safeSuffix(suffix: string): boolean {
   if (!/^[A-Za-z0-9_./-]+(?:\?per_page=100&page=[1-9][0-9]*)?$/u.test(suffix)) {
     return false;
   }
-  return (
-    suffix
-      .split("?")[0]
-      ?.split("/")
-      .every((part) => part !== "" && part !== "." && part !== "..") ?? false
-  );
+  const path = suffix.replace(/\?.*$/u, "");
+  return path
+    .split("/")
+    .every((part) => part !== "" && part !== "." && part !== "..");
 }
 
 export function endpointPath(endpoint: unknown, repository: unknown): string {
@@ -49,7 +47,8 @@ export function endpointPath(endpoint: unknown, repository: unknown): string {
 function assertObjectKeys(node: Node): void {
   if (node.type !== "object") return;
   const keys = new Set<string>();
-  for (const property of node.children ?? []) {
+  const properties = (node as Node & { children: Node[] }).children;
+  for (const property of properties) {
     const key = property.children?.[0]?.value as unknown;
     if (typeof key !== "string" || keys.has(key)) {
       throw new Error("native metadata contains duplicate object keys");
