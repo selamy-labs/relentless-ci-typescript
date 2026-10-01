@@ -8,10 +8,10 @@ export function record(value: unknown): Record<string, unknown> {
 }
 
 export function identifier(value: unknown): number {
-  if (typeof value !== "number" || !Number.isSafeInteger(value) || value <= 0) {
+  if (!Number.isSafeInteger(value) || (value as number) <= 0) {
     throw new Error("positive platform identity required");
   }
-  return value;
+  return value as number;
 }
 
 export function text(value: unknown): string {

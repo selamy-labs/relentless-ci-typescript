@@ -75,3 +75,43 @@ test("requires explicit, substantial policy rationale", () => {
     expect(() => rationale(value)).toThrow();
   }
 });
+
+test("reports malformed native fields at their parsing boundary", () => {
+  expect(() => record(null)).toThrow("native metadata object required");
+  expect(() => identifier(0)).toThrow("positive platform identity required");
+  expect(() => text("")).toThrow("nonempty native metadata text required");
+  expect(() => digest("a".repeat(39))).toThrow(
+    "full Git commit identity required",
+  );
+  expect(() => timestamp("2026-02-30T15:00:00Z")).toThrow(
+    "native UTC submission timestamp is invalid",
+  );
+  expect(() => timestamp(" 2026-09-29T15:00:00Z")).toThrow(
+    "native UTC submission timestamp required",
+  );
+  expect(() => rationale("Policy rationale: short")).toThrow(
+    "approval needs explicit maintainer policy rationale",
+  );
+});
+
+test("digest and UTC timestamp reject leading or trailing native data", () => {
+  const sha = "a".repeat(40);
+  expect(() => digest(`x${sha}`)).toThrow("full Git commit identity required");
+  expect(() => digest(`${sha}x`)).toThrow("full Git commit identity required");
+  expect(() => timestamp("x2026-09-29T15:00:00Z")).toThrow(
+    "native UTC submission timestamp required",
+  );
+  expect(() => timestamp("2026-09-29T15:00:00Zx")).toThrow(
+    "native UTC submission timestamp required",
+  );
+});
+
+test("rationale measures substantive content after trimming", () => {
+  const prefix = "Policy rationale:";
+  expect(() => rationale(`${prefix}    ${"x".repeat(29)}`)).toThrow(
+    "approval needs explicit maintainer policy rationale",
+  );
+  expect(rationale(`${prefix}    ${"x".repeat(30)}`)).toBe(
+    `${prefix}    ${"x".repeat(30)}`,
+  );
+});
