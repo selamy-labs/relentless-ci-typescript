@@ -19,6 +19,13 @@ because it enables checking. This uses the native
 inline exception is currently approved. A future exception needs a narrow
 protected policy change plus the trusted maintainer approval mechanism.
 
+Type-aware lint also requires every member of a discriminated union in a
+`switch`, even when a `default` arm is present. The protected
+`@typescript-eslint/switch-exhaustiveness-check` rule rejects a missing case;
+native clean and defect probes exercise both sides. External JSON still needs
+explicit validation before it can be narrowed to a union type. This static
+rule cannot establish that runtime input was validated correctly.
+
 Debugger statements, console logging and TODO/FIXME/XXX comments fail.
 Structured stdout/stderr writes at the JSON CLI boundary remain part of its
 required protocol. This baseline detects the named static patterns; it does not

@@ -59,6 +59,25 @@ test("native ESLint configuration enforces strict semantic rules", async () => {
   expect(rules(result)).toContain("@typescript-eslint/no-explicit-any");
 }, 30_000);
 
+test("native ESLint requires every union switch case", async () => {
+  const prefix =
+    'type Kind = "a" | "b"; export function kind(value: Kind): number { switch (value) {';
+  const missing = await new ESLint().lintText(
+    `${prefix} case "a": return 1; default: return 0; } }`,
+    { filePath: sourceFile },
+  );
+  expect(rules(missing)).toContain(
+    "@typescript-eslint/switch-exhaustiveness-check",
+  );
+  const complete = await new ESLint().lintText(
+    `${prefix} case "a": return 1; case "b": return 2; } }`,
+    { filePath: sourceFile },
+  );
+  expect(rules(complete)).not.toContain(
+    "@typescript-eslint/switch-exhaustiveness-check",
+  );
+});
+
 test("native imported configuration enrolls the focused-test plugin", async () => {
   const linter = new ESLint({
     overrideConfig: eslintConfig as Linter.Config[],
