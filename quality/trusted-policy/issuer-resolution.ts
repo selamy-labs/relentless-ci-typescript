@@ -18,7 +18,7 @@ export interface ReviewedPolicy {
   requiredNames: Set<string>;
 }
 
-async function currentCandidate(
+export async function currentCandidate(
   api: ReadApi,
   number: number,
   reviewed: ReviewedPolicy,
