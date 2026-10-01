@@ -82,6 +82,14 @@ test("rejects self-review and commit authors or committers", () => {
   expect(() =>
     decide(candidate(), [review(10, 1)], new Map([[1, role(1, "admin")]])),
   ).toThrow("missing");
+  expect(() =>
+    decide(
+      { ...candidate(), user: { id: 2 } },
+      [review()],
+      new Map([[2, role()]]),
+      [{ ...commit(), author: { id: 1 }, committer: { id: 4 } }],
+    ),
+  ).toThrow("missing");
   for (const field of ["author", "committer"]) {
     expect(() =>
       decide(candidate(), [review()], new Map([[2, role()]]), [
@@ -152,6 +160,21 @@ test("latest negative decision wins regardless of native order", () => {
   }
 });
 
+test("native submission time outranks review identity", () => {
+  const oldApproval = review(20);
+  const newerDismissal = {
+    ...review(10, 2, "DISMISSED"),
+    submitted_at: "2026-09-29T16:00:00Z",
+  };
+  for (const values of [
+    [oldApproval, newerDismissal],
+    [newerDismissal, oldApproval],
+  ]) {
+    expect(() => decide(candidate(), values)).toThrow("missing");
+    expect(latestReviews(values).get(2)).toEqual(newerDismissal);
+  }
+});
+
 test("newer approval restores eligibility; comments and pending do not replace it", () => {
   const revoked = review(10, 2, "CHANGES_REQUESTED");
   const approved = { ...review(11), submitted_at: "2026-09-29T16:00:00Z" };
@@ -161,9 +184,23 @@ test("newer approval restores eligibility; comments and pending do not replace i
 });
 
 test("ties use native review identities", () => {
-  expect(() =>
-    decide(candidate(), [review(), review(11, 2, "DISMISSED")]),
-  ).toThrow("missing");
+  const approval = review(10);
+  const dismissal = review(11, 2, "DISMISSED");
+  for (const values of [
+    [approval, dismissal],
+    [dismissal, approval],
+  ]) {
+    expect(() => decide(candidate(), values)).toThrow("missing");
+    expect(latestReviews(values).get(2)).toEqual(dismissal);
+  }
+  const restored = review(12);
+  for (const values of [
+    [dismissal, restored],
+    [restored, dismissal],
+  ]) {
+    expect(decide(candidate(), values)).toBe(2);
+    expect(latestReviews(values).get(2)).toEqual(restored);
+  }
 });
 
 test("an invalid reviewer does not hide a separate eligible maintainer", () => {
@@ -228,4 +265,13 @@ test("requires complete distinct commit authorship inventory", () => {
 test("validates the candidate independently", () => {
   expect(validateCandidate(candidate(), HEAD, BASE)).toBe(1);
   expect(() => validateCandidate(null, HEAD, BASE)).toThrow();
+  expect(() =>
+    validateCandidate({ ...candidate(), head: { sha: BASE } }, HEAD, BASE),
+  ).toThrow("candidate head changed during evaluation");
+  expect(() =>
+    validateCandidate({ ...candidate(), base: { sha: HEAD } }, HEAD, BASE),
+  ).toThrow("trusted base changed during evaluation");
+  expect(() =>
+    validateCandidate({ ...candidate(), draft: true }, HEAD, BASE),
+  ).toThrow("approval requires an open ready pull request");
 });

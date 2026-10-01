@@ -49,7 +49,8 @@ function retainReview(
   if (
     previous === undefined ||
     review.at > previous.at ||
-    (review.at === previous.at && review.identity > previous.identity)
+    (review.at === previous.at &&
+      Math.sign(review.identity - previous.identity) === 1)
   ) {
     latest.set(review.user, review);
   }
@@ -147,15 +148,6 @@ function eligible(
   );
 }
 
-function hasRationale(value: unknown): boolean {
-  try {
-    rationale(value);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function qualifies(
   item: Native,
   user: number,
@@ -166,7 +158,13 @@ function qualifies(
 ): boolean {
   if (!eligible(item, user, authors, head)) return false;
   if (!matchingRole(roles.get(user), record(item.user))) return false;
-  return !requireReason || hasRationale(item.body);
+  if (!requireReason) return true;
+  try {
+    rationale(item.body);
+  } catch {
+    return false;
+  }
+  return true;
 }
 
 export function requireApproval(
@@ -177,7 +175,7 @@ export function requireApproval(
   expectedBase: string,
   complete: boolean,
   commits: unknown[],
-  requireReason = true,
+  requireReason: boolean,
 ): number {
   if (!complete) {
     throw new Error("complete authenticated metadata inventory required");
