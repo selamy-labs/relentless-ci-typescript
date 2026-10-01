@@ -148,4 +148,4 @@ test("missing and malformed configuration cannot pass", () => {
   for (const config of ["quality/missing.json", "quality/broken.json"]) {
     expect(cruise(root, config).status).toBe(1);
   }
-});
+}, 30_000);

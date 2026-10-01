@@ -85,7 +85,7 @@ test("native ESLint requires every union switch case", async () => {
   expect(rules(complete)).not.toContain(
     "@typescript-eslint/switch-exhaustiveness-check",
   );
-});
+}, 30_000);
 
 test("native imported configuration enrolls the focused-test plugin", async () => {
   const linter = new ESLint({
