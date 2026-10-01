@@ -83,22 +83,62 @@ test("compiles workflow and protected base from native state", async () => {
 });
 
 test.each([
-  [ROOT, "full_name", "other/repo"],
-  [ROOT, "default_branch", "trunk"],
-  [`${ROOT}/branches/main`, "name", "elsewhere"],
-  [`${ROOT}/branches/main`, "protected", false],
-  [`${ROOT}/branches/main`, "commit", { sha: HEAD }],
-  [`${ROOT}/actions/workflows/ci.yml`, "name", "Other CI"],
-  [`${ROOT}/actions/workflows/ci.yml`, "path", "ci-other.yml"],
-  [`${ROOT}/actions/workflows/ci.yml`, "state", "disabled_manually"],
+  [
+    ROOT,
+    "full_name",
+    "other/repo",
+    "issuer repository identity or default branch changed",
+  ],
+  [
+    ROOT,
+    "default_branch",
+    "trunk",
+    "issuer repository identity or default branch changed",
+  ],
+  [
+    `${ROOT}/branches/main`,
+    "name",
+    "elsewhere",
+    "issuer did not run from current protected main",
+  ],
+  [
+    `${ROOT}/branches/main`,
+    "protected",
+    false,
+    "issuer did not run from current protected main",
+  ],
+  [
+    `${ROOT}/branches/main`,
+    "commit",
+    { sha: HEAD },
+    "issuer did not run from current protected main",
+  ],
+  [
+    `${ROOT}/actions/workflows/ci.yml`,
+    "name",
+    "Other CI",
+    "required CI workflow identity differs",
+  ],
+  [
+    `${ROOT}/actions/workflows/ci.yml`,
+    "path",
+    "ci-other.yml",
+    "required CI workflow identity differs",
+  ],
+  [
+    `${ROOT}/actions/workflows/ci.yml`,
+    "state",
+    "disabled_manually",
+    "required CI workflow identity differs",
+  ],
 ] as const)(
   "rejects changed protected %s field %s",
-  async (route, field, value) => {
+  async (route, field, value, reason) => {
     const values = source();
     values.set(route, { ...record(values.get(route)), [field]: value });
     await expect(
       reviewedPolicy(nativeMap(values), "owner/repo", BASE),
-    ).rejects.toThrow();
+    ).rejects.toThrow(reason);
   },
 );
 
@@ -115,7 +155,15 @@ test("event payload rejects relative, missing, nonfile, and oversized paths", ()
   expect(() => eventPayload(`${path}.missing`)).toThrow();
   expect(() => eventPayload(join(path, "child"))).toThrow();
   truncateSync(path, 8 * 1024 * 1024 + 1);
-  expect(() => eventPayload(path)).toThrow("too large");
+  expect(() => eventPayload(path)).toThrow(
+    "trusted event file is missing or too large",
+  );
+});
+
+test("event payload accepts the exact native byte budget", () => {
+  const path = eventFile();
+  writeFileSync(path, "{}" + " ".repeat(8 * 1024 * 1024 - 2));
+  expect(eventPayload(path)).toEqual({});
 });
 
 test.each(["0", "-2", "+2", "two", "2.0", "9007199254740993"])(
@@ -127,6 +175,13 @@ test.each(["0", "-2", "+2", "two", "2.0", "9007199254740993"])(
 
 test("accepts an exact positive App ID", () => {
   expect(appId("41")).toBe(41);
+  expect(appId("5155288")).toBe(5155288);
+});
+
+test("reports a malformed dedicated App ID before conversion", () => {
+  expect(() => appId("two")).toThrow(
+    "dedicated App ID is not a positive decimal identity",
+  );
 });
 
 test("entrypoint requires installation token before native reads", async () => {
