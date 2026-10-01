@@ -120,6 +120,30 @@ test("collects complete native approval and matrix evidence with readback", asyn
   ).toHaveLength(2);
 });
 
+test("invalid candidate and policy identities stop before unrelated native reads", async () => {
+  const malformed = source();
+  malformed.set(PR, [{ ...pull(), state: "closed" }]);
+  const first = native(malformed);
+  await expect(evaluate(first.api, POLICY)).rejects.toThrow();
+  expect(first.routes).toEqual([PR]);
+  for (const field of ["head", "base"] as const) {
+    const probe = native(source());
+    await expect(
+      evaluate(probe.api, { ...POLICY, [field]: "invalid" }),
+    ).rejects.toThrow();
+    expect(probe.routes).toEqual([]);
+  }
+});
+
+test("ordinary approval does not require a native rationale comment", async () => {
+  const values = source();
+  values.delete(`${COMMENT_ROUTE}?per_page=100&page=1`);
+  values.delete(`${COMMENT_ROUTE}?per_page=100&page=2`);
+  const { api, routes } = native(values);
+  expect(await evaluate(api, POLICY)).toBe(2);
+  expect(routes).not.toContain(`${COMMENT_ROUTE}?per_page=100&page=1`);
+});
+
 test.each([BASE, null, "not-a-commit"])(
   "rejects changed native candidate head %j",
   async (head) => {

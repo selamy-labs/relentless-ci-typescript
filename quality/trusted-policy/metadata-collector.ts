@@ -154,8 +154,9 @@ async function evaluateCore(
     !commentMode,
   );
   const commentRoute = `${repository}/issues/${String(identifier(policy.pullNumber))}/comments`;
-  const comments = commentMode ? await arrayInventory(api, commentRoute) : [];
+  let comments: unknown[] | undefined;
   if (commentMode) {
+    comments = await arrayInventory(api, commentRoute);
     requireComment(
       comments,
       reviewer,
@@ -168,7 +169,7 @@ async function evaluateCore(
   await sameCandidate(api, endpoint, policy, before);
   await sameReviews(api, `${endpoint}/reviews`, reviews);
   await sameRoles(api, repository, reviews, roleInventory);
-  if (commentMode) await sameComments(api, commentRoute, comments);
+  if (comments !== undefined) await sameComments(api, commentRoute, comments);
   return reviewer;
 }
 
