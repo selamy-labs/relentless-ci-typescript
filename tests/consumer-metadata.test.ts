@@ -7,7 +7,7 @@ import { verifyConsumerMetadata } from "../quality/consumer-metadata.js";
 const roots: string[] = [];
 const valid = {
   exports: { ".": { types: "./dist/index.d.ts", import: "./dist/index.js" } },
-  bin: { "relentless-example": "dist/main.js" },
+  bin: { "interval-generated-ts": "dist/main.js" },
 };
 function fixture(value: unknown = valid): string {
   const root = mkdtempSync(join(tmpdir(), "relentless-consumer-metadata-"));
@@ -19,7 +19,7 @@ function fixture(value: unknown = valid): string {
   );
   mkdirSync(join(root, "node_modules", ".bin"));
   writeFileSync(
-    join(root, "node_modules", ".bin", "relentless-example"),
+    join(root, "node_modules", ".bin", "interval-generated-ts"),
     "registered",
   );
   return root;
@@ -36,7 +36,7 @@ test.each([
   {},
   { bin: valid.bin },
   { exports: valid.exports },
-  { ...valid, bin: { "relentless-example": "dist/absent.js" } },
+  { ...valid, bin: { "interval-generated-ts": "dist/absent.js" } },
   {
     ...valid,
     exports: {
@@ -56,7 +56,7 @@ test.each([
 });
 test("missing native CLI registration fails even with correct metadata", () => {
   const root = fixture();
-  rmSync(join(root, "node_modules", ".bin", "relentless-example"));
+  rmSync(join(root, "node_modules", ".bin", "interval-generated-ts"));
   expect(() => {
     verifyConsumerMetadata(root, "sample");
   }).toThrow("installed CLI registration is missing");
