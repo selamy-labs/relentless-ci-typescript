@@ -16,6 +16,7 @@ test("installed behavior gets only platform plumbing and a temporary home", () =
   expect(env.HOME).toBe("/consumer");
   expect(env.USERPROFILE).toBe("/consumer");
   expect(env.TMPDIR).toBe("/consumer");
+  expect(env.RLCI_CONSUMER_ROOT).toBe("/consumer");
   expect(env.NODE_OPTIONS).toMatch(/^--import=data:text\/javascript;base64,/u);
 });
 test("optional platform plumbing is copied only when present", () => {

@@ -54,8 +54,10 @@ Installed behavior inherits only platform process plumbing, with its home and
 temporary directories bound to the fresh consumer. Caller credentials and
 arbitrary environment variables do not reach the package. A Node preload
 rejects `fetch`, TCP/TLS, HTTP(S) and UDP calls before the public API, CLI or
-type consumer runs. Native probes deliberately attempt each network API and
-require the guard's failure message. The installed archive and npm execution
+type consumer runs. It also confines common Node filesystem write APIs to the
+owned consumer directory, including symlink-resolved paths. Native probes
+deliberately attempt network and outside-write calls and require the guard's
+failure message. The installed archive and npm execution
 remain offline, and the owned consumer directory is removed on every outcome.
 Receipts are saved only after all consumer checks pass. Native archives with
 broken declarations, CLI metadata, import metadata or runtime behavior fail.
