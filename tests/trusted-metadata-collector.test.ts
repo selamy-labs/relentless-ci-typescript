@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import {
   evaluate,
+  evaluateComment,
   type Policy,
 } from "../quality/trusted-policy/metadata-collector.js";
 
@@ -9,6 +10,8 @@ const BASE = "b".repeat(40);
 const REPOSITORY = "repos/owner/repo";
 const PR = `${REPOSITORY}/pulls/1`;
 const RUN = `${REPOSITORY}/actions/runs/1`;
+const COMMENT_ROUTE = `${REPOSITORY}/issues/1/comments`;
+const ISSUE_URL = `https://api.github.com/${REPOSITORY}/issues/1`;
 const NAMES = new Set([
   "Full analysis (Node 22)",
   "Installed behavior (Linux, Node 22)",
@@ -90,6 +93,20 @@ function source(): Pages {
     [`${PR}/reviews?per_page=100&page=1`, [[review()]]],
     [`${PR}/reviews?per_page=100&page=2`, [[]]],
     [`${REPOSITORY}/collaborators/user-2/permission`, [role()]],
+    [
+      `${COMMENT_ROUTE}?per_page=100&page=1`,
+      [
+        [
+          {
+            id: 9,
+            user: { id: 2 },
+            issue_url: ISSUE_URL,
+            body: `Policy rationale for ${HEAD}: Complete mutation scope stays protected.`,
+          },
+        ],
+      ],
+    ],
+    [`${COMMENT_ROUTE}?per_page=100&page=2`, [[]]],
     [RUN, [workflow()]],
     [
       `${RUN}/attempts/3/jobs?per_page=100&page=1`,
@@ -240,5 +257,64 @@ test("rejects reviewer role removal during collection", async () => {
   ]);
   await expect(evaluate(native(values).api, POLICY)).rejects.toThrow(
     "roles changed",
+  );
+});
+
+test("accepts independent approval with a separate current-head comment", async () => {
+  const values = source();
+  values.set(`${PR}/reviews?per_page=100&page=1`, [
+    [{ ...review(), body: "" }],
+  ]);
+  const { api, routes } = native(values);
+  expect(await evaluateComment(api, POLICY)).toBe(2);
+  expect(
+    routes.filter((route) => route === `${COMMENT_ROUTE}?per_page=100&page=2`),
+  ).toHaveLength(2);
+});
+
+test("rejects a missing or stale comment rationale", async () => {
+  const missing = source();
+  missing.set(`${COMMENT_ROUTE}?per_page=100&page=1`, [[]]);
+  await expect(evaluateComment(native(missing).api, POLICY)).rejects.toThrow(
+    "missing",
+  );
+  const stale = source();
+  stale.set(`${COMMENT_ROUTE}?per_page=100&page=1`, [
+    [
+      {
+        id: 9,
+        user: { id: 2 },
+        issue_url: ISSUE_URL,
+        body: `Policy rationale for ${BASE}: Complete mutation scope stays protected.`,
+      },
+    ],
+  ]);
+  await expect(evaluateComment(native(stale).api, POLICY)).rejects.toThrow(
+    "missing",
+  );
+});
+
+test("rejects comment changes during the native readback", async () => {
+  const values = source();
+  values.set(`${COMMENT_ROUTE}?per_page=100&page=1`, [
+    [
+      {
+        id: 9,
+        user: { id: 2 },
+        issue_url: ISSUE_URL,
+        body: `Policy rationale for ${HEAD}: Complete mutation scope stays protected.`,
+      },
+    ],
+    [
+      {
+        id: 9,
+        user: { id: 2 },
+        issue_url: ISSUE_URL,
+        body: `Policy rationale for ${HEAD}: Different adequate rationale remains protected.`,
+      },
+    ],
+  ]);
+  await expect(evaluateComment(native(values).api, POLICY)).rejects.toThrow(
+    "comment inventory changed",
   );
 });

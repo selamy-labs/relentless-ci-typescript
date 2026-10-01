@@ -1,6 +1,7 @@
 /** Collect native review and run evidence from a trusted repository only. */
 
 import { isDeepStrictEqual } from "node:util";
+import { requireComment } from "./comment-policy.js";
 import { associatedRun, requireMatrix } from "./execution-policy.js";
 import { repositoryRoute } from "./github-read.js";
 import {
@@ -108,6 +109,16 @@ async function sameReviews(
   }
 }
 
+async function sameComments(
+  api: ReadApi,
+  endpoint: string,
+  first: unknown[],
+): Promise<void> {
+  if (!isDeepStrictEqual(await arrayInventory(api, endpoint), first)) {
+    throw new Error("comment inventory changed during evaluation");
+  }
+}
+
 async function sameRoles(
   api: ReadApi,
   repository: string,
@@ -119,7 +130,11 @@ async function sameRoles(
   }
 }
 
-export async function evaluate(api: ReadApi, policy: Policy): Promise<number> {
+async function evaluateCore(
+  api: ReadApi,
+  policy: Policy,
+  commentMode: boolean,
+): Promise<number> {
   const repository = repositoryRoute(policy.repository);
   digest(policy.head);
   digest(policy.base);
@@ -136,10 +151,34 @@ export async function evaluate(api: ReadApi, policy: Policy): Promise<number> {
     policy.base,
     true,
     commits,
+    !commentMode,
   );
+  const commentRoute = `${repository}/issues/${String(identifier(policy.pullNumber))}/comments`;
+  const comments = commentMode ? await arrayInventory(api, commentRoute) : [];
+  if (commentMode) {
+    requireComment(
+      comments,
+      reviewer,
+      policy.head,
+      `https://api.github.com/${repository}/issues/${String(policy.pullNumber)}`,
+      true,
+    );
+  }
   await collectRun(api, repository, policy, before);
   await sameCandidate(api, endpoint, policy, before);
   await sameReviews(api, `${endpoint}/reviews`, reviews);
   await sameRoles(api, repository, reviews, roleInventory);
+  if (commentMode) await sameComments(api, commentRoute, comments);
   return reviewer;
+}
+
+export async function evaluate(api: ReadApi, policy: Policy): Promise<number> {
+  return evaluateCore(api, policy, false);
+}
+
+export async function evaluateComment(
+  api: ReadApi,
+  policy: Policy,
+): Promise<number> {
+  return evaluateCore(api, policy, true);
 }
