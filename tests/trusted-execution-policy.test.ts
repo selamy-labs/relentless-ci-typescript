@@ -165,5 +165,39 @@ test("binds a fork run with an empty native association list", () => {
 test("rejects malformed association arrays", () => {
   expect(() =>
     associatedRun({ ...workflow(), pull_requests: null }, {}, 1, HEAD, BASE),
-  ).toThrow("array");
+  ).toThrow("native policy array required");
+});
+
+test("reports the native execution boundary that failed", () => {
+  for (const [field, value, reason] of [
+    ["status", "queued", "required execution must complete successfully"],
+    ["workflow_id", 99, "unrelated workflow cannot supply required evidence"],
+    ["head_sha", BASE, "workflow evidence belongs to a different PR head"],
+    [
+      "event",
+      "workflow_dispatch",
+      "required untrusted-code evidence must be from a PR run",
+    ],
+  ] as const) {
+    expect(() => {
+      requireCurrent({ ...workflow(), [field]: value });
+    }).toThrow(reason);
+  }
+  for (const [field, value, reason] of [
+    ["run_id", 99, "job belongs to a different workflow run"],
+    ["run_attempt", 2, "job belongs to a different workflow attempt"],
+    ["head_sha", BASE, "job belongs to a different candidate"],
+  ] as const) {
+    const items = jobs();
+    items[0] = { ...items[0], [field]: value };
+    expect(() => {
+      requireCurrent(workflow(), items);
+    }).toThrow(reason);
+  }
+  expect(() => {
+    requireCurrent(workflow(), jobs().slice(0, -1));
+  }).toThrow("native paginated job inventory is incomplete");
+  expect(() => {
+    requireCurrent(workflow(), jobs().slice(0, -1), 2);
+  }).toThrow("native job inventory differs from required matrix");
 });
