@@ -175,14 +175,16 @@ test("untrusted event identity cannot publish", async () => {
 
 test("association-free event has no safe fallback when resolution fails", async () => {
   const { publish, decisions } = publisher();
+  const values = source();
+  values.set(`${ROOT}/pulls?per_page=100&page=1`, []);
   const unknown = {
     repository: { full_name: "owner/repo", id: 17 },
     action: "completed",
     workflow_run: { id: 1, event: "pull_request", pull_requests: [] },
   };
   await expect(
-    issue(nativeMap(source()), publish, "workflow_run", unknown, REVIEWED),
-  ).rejects.toThrow();
+    issue(nativeMap(values), publish, "workflow_run", unknown, REVIEWED),
+  ).rejects.toThrow("fork run does not identify exactly one current PR");
   expect(decisions).toEqual([]);
 });
 
