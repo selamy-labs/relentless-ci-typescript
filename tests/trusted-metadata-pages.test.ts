@@ -15,13 +15,17 @@ test("uses fixed pagination on a query-free endpoint", () => {
 });
 
 test.each(["?page=2", "#fragment"])("rejects appended %s", (suffix) => {
-  expect(() => pageRoute(`${ENDPOINT}${suffix}`, 1)).toThrow();
+  expect(() => pageRoute(`${ENDPOINT}${suffix}`, 1)).toThrow(
+    "native inventory endpoint contains a query or fragment",
+  );
 });
 
 test.each([0, MAX_PAGES + 1, 1.5, Number.NaN])(
   "rejects out-of-budget page %s",
   (page) => {
-    expect(() => pageRoute(ENDPOINT, page)).toThrow();
+    expect(() => pageRoute(ENDPOINT, page)).toThrow(
+      "native inventory page is outside the collection budget",
+    );
   },
 );
 
@@ -38,9 +42,18 @@ test.each([null, {}, Array(PAGE_SIZE + 1).fill(0)])(
   async (page) => {
     await expect(
       arrayInventory(() => Promise.resolve(page), ENDPOINT),
-    ).rejects.toThrow();
+    ).rejects.toThrow("native page must contain at most 100 items");
   },
 );
+
+test("accepts exactly one full array page before an empty terminator", async () => {
+  const full = Array.from({ length: PAGE_SIZE }, (_, index) => index);
+  const api = vi.fn((route: string) =>
+    Promise.resolve(route.endsWith("page=1") ? full : []),
+  );
+  expect(await arrayInventory(api, ENDPOINT)).toEqual(full);
+  expect(api).toHaveBeenCalledTimes(2);
+});
 
 test("rejects an unterminated array inventory", async () => {
   const api = vi.fn(() => Promise.resolve([1]));
@@ -65,20 +78,41 @@ test("collects all counted object pages and checks the count", async () => {
 test.each([
   null,
   [],
+  7,
+  "not an object",
   { total_count: -1, reviews: [] },
   { total_count: 1.5, reviews: [] },
   { total_count: 0, reviews: {} },
 ])("rejects malformed counted page %j", async (page) => {
+  const reason =
+    page === null || typeof page !== "object" || Array.isArray(page)
+      ? "native object inventory response required"
+      : "total_count" in page &&
+          typeof page.total_count === "number" &&
+          (page.total_count < 0 || !Number.isSafeInteger(page.total_count))
+        ? "native inventory count is invalid"
+        : "native page must contain at most 100 items";
   await expect(
     objectInventory(() => Promise.resolve(page), ENDPOINT, "reviews"),
-  ).rejects.toThrow();
+  ).rejects.toThrow(reason);
+});
+
+test("accepts a native zero-count object inventory", async () => {
+  const api = vi.fn(() => Promise.resolve({ total_count: 0, reviews: [] }));
+  expect(await objectInventory(api, ENDPOINT, "reviews")).toEqual([0, []]);
+  expect(api).toHaveBeenCalledTimes(1);
 });
 
 test("rejects count drift between pages", async () => {
   let page = 0;
-  const api = () => Promise.resolve({ total_count: ++page, reviews: [page] });
+  const api = () =>
+    Promise.resolve(
+      ++page === 1
+        ? { total_count: 1, reviews: [1] }
+        : { total_count: 2, reviews: [] },
+    );
   await expect(objectInventory(api, ENDPOINT, "reviews")).rejects.toThrow(
-    "changed",
+    "native inventory changed during pagination",
   );
 });
 
