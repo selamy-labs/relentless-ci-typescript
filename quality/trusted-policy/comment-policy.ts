@@ -32,10 +32,10 @@ function commentIdentity(
 function hasReason(item: Native, head: string): boolean {
   try {
     commentReason(item.body, head);
-    return true;
   } catch {
     return false;
   }
+  return true;
 }
 
 function qualifyingId(

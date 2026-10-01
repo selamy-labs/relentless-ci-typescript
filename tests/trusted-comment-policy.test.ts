@@ -31,6 +31,21 @@ test("qualifies only the approved reviewer at the current head", () => {
   );
 });
 
+test("requires the full head and a thirty-character reason", () => {
+  expect(() =>
+    commentReason(
+      `Policy rationale for ${"b".repeat(40)}: ${"x".repeat(30)}`,
+      HEAD,
+    ),
+  ).toThrow("comment must name the full current head");
+  expect(() =>
+    commentReason(`Policy rationale for ${HEAD}: ${"x".repeat(29)}`, HEAD),
+  ).toThrow("comment needs substantive policy rationale");
+  expect(
+    commentReason(`Policy rationale for ${HEAD}: ${"x".repeat(30)}`, HEAD),
+  ).toBe("x".repeat(30));
+});
+
 test("returns the latest qualifying native identity", () => {
   expect(requireComment([comment(), comment(3)], 2, HEAD, ISSUE, true)).toBe(3);
 });
