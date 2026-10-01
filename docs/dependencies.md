@@ -44,9 +44,10 @@ failures cannot leave an apparently current successful inventory.
 Tests cover malformed fields, blocked licenses and URLs, digest length and
 encoding, install-script changes, manifest drift, nested package versions and
 empty inventories. Native CLI probes run copied bootstrap files in temporary
-projects with no installed packages. Full hosted execution, Python's matching
-gate, native scanner license inventory and distribution notice checks remain
-pending.
+projects with no installed packages. Hosted full-analysis artifacts retain the
+component inventory alongside the raw security and mutation reports. Python's
+matching license gate, native scanner license inventory and distribution notice
+checks remain pending.
 
 Sources:
 [npm lock format](https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json/),
