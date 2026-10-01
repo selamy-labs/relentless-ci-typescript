@@ -3,8 +3,17 @@ import { ESLint, type Linter } from "eslint";
 import { expect, test } from "vitest";
 import eslintConfig from "../eslint.config.mjs";
 import vitestConfig from "../quality/vitest-config.js";
+import checks from "../quality/checks.json" with { type: "json" };
+import manifest from "../package.json" with { type: "json" };
 
 const sourceFile = resolve("src/validation.ts");
+test("stability gate repeats the full suite with two shuffled seeds", () => {
+  expect(checks).toContainEqual(["run", "stability"]);
+  expect(manifest.scripts.stability).toBe(
+    "npm test -- --sequence.shuffle --sequence.seed 41 && npm test -- --sequence.shuffle --sequence.seed 73",
+  );
+  expect(vitestConfig.test.retry).toBe(0);
+});
 function rules(results: ESLint.LintResult[]): string[] {
   return results.flatMap((result) =>
     result.messages.flatMap((message) =>

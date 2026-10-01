@@ -23,6 +23,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "tsc -p tsconfig.quality.json && vitest run --config .quality-build/quality/vitest-config.js",
+    "stability": "npm test -- --sequence.shuffle --sequence.seed 41 && npm test -- --sequence.shuffle --sequence.seed 73",
     "coverage": "tsc -p tsconfig.quality.json && vitest run --config .quality-build/quality/vitest-config.js --coverage",
     "lint": "eslint --max-warnings 0 --no-ignore src tests quality eslint.config.mjs dependency-policy.mjs dependency-main.mjs",
     "format:check": "prettier --check src tests quality *.json *.mjs",
