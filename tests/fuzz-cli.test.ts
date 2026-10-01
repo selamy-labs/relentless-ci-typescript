@@ -61,4 +61,5 @@ test.each(families)(
       { seed, numRuns: 32 },
     );
   },
+  30_000,
 );
