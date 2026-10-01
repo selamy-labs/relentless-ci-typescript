@@ -153,3 +153,78 @@ test("rejects unsupported trusted events", () => {
     parseEvent("pull_request_review", comment(), NAME, IDENTITY),
   ).toThrow("unsupported trusted issuer event");
 });
+
+test("reports the precise trust boundary rejected by each native event", () => {
+  expect(() =>
+    parseEvent(
+      "repository_dispatch",
+      { ...dispatch(), action: "other" },
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("unsupported policy dispatch action");
+  expect(() =>
+    parseEvent(
+      "repository_dispatch",
+      { ...dispatch(), client_payload: {} },
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("policy dispatch must contain only a PR lookup number");
+  expect(() =>
+    parseEvent(
+      "issue_comment",
+      { ...comment(), repository: { full_name: "other/repo", id: IDENTITY } },
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("issuer event belongs to another repository");
+  expect(() =>
+    parseEvent(
+      "issue_comment",
+      { ...comment(), action: "transferred" },
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("unsupported rationale event action");
+  expect(() =>
+    parseEvent(
+      "workflow_run",
+      { ...run(), action: "requested" },
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("only a completed workflow run can initiate evaluation");
+  const changed = (workflow_run: unknown): Record<string, unknown> => ({
+    ...run(),
+    workflow_run,
+  });
+  expect(() =>
+    parseEvent(
+      "workflow_run",
+      changed({ id: 77, event: "push", pull_requests: [{ number: 2 }] }),
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("issuer needs a pull-request workflow run");
+  expect(() =>
+    parseEvent(
+      "workflow_run",
+      changed({ id: 77, event: "pull_request", pull_requests: null }),
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("native run associations must be an array");
+  expect(() =>
+    parseEvent(
+      "workflow_run",
+      changed({
+        id: 77,
+        event: "pull_request",
+        pull_requests: [{ number: 2 }, { number: 3 }],
+      }),
+      NAME,
+      IDENTITY,
+    ),
+  ).toThrow("run must not identify multiple pull requests");
+});
