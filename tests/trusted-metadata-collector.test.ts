@@ -1,5 +1,10 @@
 import { expect, test } from "vitest";
 import {
+  jobs as nativeJobs,
+  pull as nativePull,
+  workflow as nativeWorkflow,
+} from "./trusted-native-fixtures.js";
+import {
   evaluate,
   evaluateComment,
   type Policy,
@@ -27,18 +32,7 @@ const POLICY: Policy = {
   requiredNames: NAMES,
 };
 
-function pull(): Record<string, unknown> {
-  return {
-    number: 1,
-    user: { id: 1 },
-    head: { sha: HEAD },
-    base: { sha: BASE },
-    state: "open",
-    draft: false,
-    commits: 1,
-    merge_commit_sha: "c".repeat(40),
-  };
-}
+const pull = (): Record<string, unknown> => nativePull(HEAD, BASE);
 
 function review(state = "APPROVED"): Record<string, unknown> {
   return {
@@ -55,30 +49,8 @@ function role(name = "maintain"): Record<string, unknown> {
   return { user: { id: 2, login: "user-2" }, role_name: name };
 }
 
-function workflow(): Record<string, unknown> {
-  return {
-    id: 1,
-    workflow_id: 2,
-    run_attempt: 3,
-    head_sha: HEAD,
-    event: "pull_request",
-    status: "completed",
-    conclusion: "success",
-    pull_requests: [{ number: 1, head: { sha: HEAD }, base: { sha: BASE } }],
-  };
-}
-
-function jobs(): Record<string, unknown>[] {
-  return [...NAMES].sort().map((name, index) => ({
-    id: index + 1,
-    run_id: 1,
-    run_attempt: 3,
-    head_sha: HEAD,
-    name,
-    status: "completed",
-    conclusion: "success",
-  }));
-}
+const workflow = (): Record<string, unknown> => nativeWorkflow(HEAD, BASE);
+const jobs = (): Record<string, unknown>[] => nativeJobs(HEAD, NAMES);
 
 type Pages = Map<string, unknown[]>;
 

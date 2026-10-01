@@ -1,4 +1,5 @@
 import { expect, test } from "vitest";
+import { nativeMap } from "./trusted-native-fixtures.js";
 import {
   resolve,
   type ReviewedPolicy,
@@ -58,12 +59,12 @@ function native(values: Record<string, unknown>): {
   routes: string[];
 } {
   const routes: string[] = [];
+  const read = nativeMap(new Map(Object.entries(values)));
   return {
     routes,
-    api: (route: string) => {
+    api: (route) => {
       routes.push(route);
-      if (!(route in values)) throw new Error(`missing native route ${route}`);
-      return Promise.resolve(structuredClone(values[route]));
+      return read(route);
     },
   };
 }

@@ -1,4 +1,9 @@
 import { expect, test } from "vitest";
+import {
+  nativeMap,
+  pull as nativePull,
+  workflow as nativeWorkflow,
+} from "./trusted-native-fixtures.js";
 import type { ReviewedPolicy } from "../quality/trusted-policy/issuer-resolution.js";
 import { issue } from "../quality/trusted-policy/trusted-issuer.js";
 
@@ -16,18 +21,8 @@ const REVIEWED: ReviewedPolicy = {
   requiredNames: NAMES,
 };
 
-function workflow(conclusion = "success"): Record<string, unknown> {
-  return {
-    id: 1,
-    workflow_id: 2,
-    run_attempt: 3,
-    head_sha: HEAD,
-    event: "pull_request",
-    status: "completed",
-    conclusion,
-    pull_requests: [{ number: 1, head: { sha: HEAD }, base: { sha: BASE } }],
-  };
-}
+const workflow = (conclusion = "success"): Record<string, unknown> =>
+  nativeWorkflow(HEAD, BASE, conclusion);
 
 function source(): Map<string, unknown> {
   const issueUrl = `https://api.github.com/${ROOT}/issues/1`;
@@ -37,19 +32,7 @@ function source(): Map<string, unknown> {
       `${ROOT}/branches/main`,
       { name: "main", protected: true, commit: { sha: BASE } },
     ],
-    [
-      PR,
-      {
-        number: 1,
-        user: { id: 1 },
-        head: { sha: HEAD },
-        base: { sha: BASE },
-        state: "open",
-        draft: false,
-        commits: 1,
-        merge_commit_sha: "c".repeat(40),
-      },
-    ],
+    [PR, nativePull(HEAD, BASE)],
     [
       `${PR}/commits?per_page=100&page=1`,
       [{ sha: HEAD, author: { id: 1 }, committer: { id: 4 } }],
@@ -116,15 +99,6 @@ function source(): Map<string, unknown> {
   ]);
 }
 
-function native(
-  values: Map<string, unknown>,
-): (route: string) => Promise<unknown> {
-  return (route) => {
-    if (!values.has(route)) throw new Error(`unexpected native route ${route}`);
-    return Promise.resolve(structuredClone(values.get(route)));
-  };
-}
-
 function event(): Record<string, unknown> {
   return {
     repository: { full_name: "owner/repo", id: 17 },
@@ -147,10 +121,24 @@ function publisher(): {
   };
 }
 
+async function expectFailure(values: Map<string, unknown>): Promise<void> {
+  const { publish, decisions } = publisher();
+  expect(
+    await issue(nativeMap(values), publish, "issue_comment", event(), REVIEWED),
+  ).toBe(1);
+  expect(decisions).toEqual([[HEAD, false]]);
+}
+
 test("publishes failure first, then success only after current native approval", async () => {
   const { publish, decisions } = publisher();
   expect(
-    await issue(native(source()), publish, "issue_comment", event(), REVIEWED),
+    await issue(
+      nativeMap(source()),
+      publish,
+      "issue_comment",
+      event(),
+      REVIEWED,
+    ),
   ).toBe(2);
   expect(decisions).toEqual([
     [HEAD, false],
@@ -164,21 +152,13 @@ test("missing current run replaces stale success with failure", async () => {
     total_count: 0,
     workflow_runs: [],
   });
-  const { publish, decisions } = publisher();
-  expect(
-    await issue(native(values), publish, "issue_comment", event(), REVIEWED),
-  ).toBe(1);
-  expect(decisions).toEqual([[HEAD, false]]);
+  await expectFailure(values);
 });
 
 test("invalid current review leaves only the App failure check", async () => {
   const values = source();
   values.set(`${PR}/reviews?per_page=100&page=1`, []);
-  const { publish, decisions } = publisher();
-  expect(
-    await issue(native(values), publish, "issue_comment", event(), REVIEWED),
-  ).toBe(1);
-  expect(decisions).toEqual([[HEAD, false]]);
+  await expectFailure(values);
 });
 
 test("untrusted event identity cannot publish", async () => {
@@ -188,7 +168,7 @@ test("untrusted event identity cannot publish", async () => {
     repository: { full_name: "other/repo", id: 17 },
   };
   await expect(
-    issue(native(source()), publish, "issue_comment", foreign, REVIEWED),
+    issue(nativeMap(source()), publish, "issue_comment", foreign, REVIEWED),
   ).rejects.toThrow();
   expect(decisions).toEqual([]);
 });
@@ -201,7 +181,7 @@ test("association-free event has no safe fallback when resolution fails", async 
     workflow_run: { id: 1, event: "pull_request", pull_requests: [] },
   };
   await expect(
-    issue(native(source()), publish, "workflow_run", unknown, REVIEWED),
+    issue(nativeMap(source()), publish, "workflow_run", unknown, REVIEWED),
   ).rejects.toThrow();
   expect(decisions).toEqual([]);
 });
@@ -210,6 +190,6 @@ test("failure-check creation must precede success", async () => {
   const publish = (): Promise<number> =>
     Promise.reject(new Error("App publication failed"));
   await expect(
-    issue(native(source()), publish, "issue_comment", event(), REVIEWED),
+    issue(nativeMap(source()), publish, "issue_comment", event(), REVIEWED),
   ).rejects.toThrow("App publication failed");
 });

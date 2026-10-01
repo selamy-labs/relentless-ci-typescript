@@ -1,5 +1,9 @@
 import { expect, test } from "vitest";
 import {
+  jobs as nativeJobs,
+  workflow as nativeWorkflow,
+} from "./trusted-native-fixtures.js";
+import {
   associatedRun,
   requireMatrix,
   verifyRun,
@@ -13,30 +17,8 @@ const NAMES = new Set([
   "Relentless CI gate",
 ]);
 
-function workflow(): Record<string, unknown> {
-  return {
-    id: 1,
-    workflow_id: 2,
-    run_attempt: 3,
-    head_sha: HEAD,
-    event: "pull_request",
-    status: "completed",
-    conclusion: "success",
-    pull_requests: [{ number: 1, head: { sha: HEAD }, base: { sha: BASE } }],
-  };
-}
-
-function jobs(): Record<string, unknown>[] {
-  return [...NAMES].sort().map((name, index) => ({
-    id: index + 1,
-    run_id: 1,
-    run_attempt: 3,
-    head_sha: HEAD,
-    name,
-    status: "completed",
-    conclusion: "success",
-  }));
-}
+const workflow = (): Record<string, unknown> => nativeWorkflow(HEAD, BASE);
+const jobs = (): Record<string, unknown>[] => nativeJobs(HEAD, NAMES);
 
 function requireCurrent(
   run: unknown = workflow(),
