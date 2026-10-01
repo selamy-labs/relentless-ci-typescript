@@ -26,7 +26,7 @@ function behavior(consumer: string, name: string, timeout: number): void {
     "--no",
     "--loglevel=error",
     "--",
-    "relentless-example",
+    "interval-generated-ts",
   ];
   consumerNode(cli, consumer, timeout, sample, {
     status: 0,
