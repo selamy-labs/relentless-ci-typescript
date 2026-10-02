@@ -17,8 +17,8 @@ fail. The complete local verifier and installed-behavior jobs call this check.
 The snapshot is checked locally without accounts or live network access. Its
 recorded upstream URL identifies an immutable commit. Maintainers must verify the
 upstream data when renewing the review or changing dates; the local schema alone
-does not prove an edited date came from upstream. Trusted protection of this
-policy and hosted execution remain pending.
+does not prove an edited date came from upstream. Protected policy review and
+the App-owned issuer check guard changes to this snapshot.
 
 | Node.js | End of life | Full analysis | Installed behavior    |
 | ------- | ----------- | ------------- | --------------------- |
@@ -33,13 +33,10 @@ on every listed operating system. A requested job is not evidence that it passed
 Every matrix result must succeed; missing, skipped and cancelled jobs cannot
 establish support.
 
-Local Linux tool runs exist on Node.js 22.23.2, 24.19.0 and 26.4.0 with npm
-12.0.2. The runtime-gate revision produced 879 passing tests and 1,748 killed
-mutants on Node.js 22 and 26. Independent coverage auditing then found that
-Vitest omitted the executable configuration despite its declared enrollment.
-The adapter has been relocated and exact native coverage inventory validation
-added. Fresh full qualification of that repair on every declared runtime,
-plus hosted Linux, macOS and Windows qualification, remains pending.
+The hosted workflow runs the full verifier independently on Node 22, 24 and 26.
+Each full job retains raw coverage and mutation artifacts; installed behavior
+runs on all three operating systems for every declared Node line. Publication
+evidence binds those native jobs and artifacts to the exact source revision.
 
 Recheck the upstream schedule before each publication and runtime-policy change.
 Treat a release line as unsupported on or after its listed end date. Before that

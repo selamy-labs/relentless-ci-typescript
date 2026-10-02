@@ -19,10 +19,10 @@ verify the upstream support schedule and run the complete Linux verifier for
 every declared version, plus installed behavior on Linux, macOS and Windows.
 Adding an updater does not establish that a runtime is still supported.
 
-This configuration is a local draft. GitHub parsing and actual update jobs remain
-unverified until publication. Live repository settings must also enable the
-intended dependency alerts and security updates. Their coverage does not replace
-the complete local vulnerability inventory.
+Each generated repository must enable and verify the intended dependency alerts
+and security updates in its own settings. An actual update proposal depends on
+upstream releases and GitHub's schedule; those proposals do not replace the
+complete local vulnerability inventory.
 
 Sources: [Dependabot configuration](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference),
 [supported ecosystems](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories),

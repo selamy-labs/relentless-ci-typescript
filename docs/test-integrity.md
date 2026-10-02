@@ -26,8 +26,9 @@ empty discovery. Additional receipt probes exercise corruption and inventory
 mismatches. Faulty fixtures live in temporary projects and do not require
 exclusions from owned source.
 
-The supported discovery convention is `tests/**/*.test.ts`. Static detection of
-test-like files using other names remains pending. The native ESLint probes
+The supported discovery convention is `tests/**/*.test.ts`. Test-like files
+using other names are outside that convention and require an explicit scope
+change before they can be credited. The native ESLint probes
 reject focused, skipped, alternate Node imports and weakening retry options.
 They first assert a clean analyzer setup before the negative cases. A separate
 behavioral witness passes the imported configuration to native ESLint and
@@ -39,8 +40,8 @@ and mutation gates provide separate evidence for that requirement.
 
 Remediation is to restore the missing suite, remove focus/skip/todo markers,
 repair failures or fix the reporter configuration. Do not reduce discovery scope
-or accept incomplete receipts to make verification pass. Hosted policy approval
-and the runtime matrix remain pending.
+or accept incomplete receipts to make verification pass. Every hosted full
+analysis job runs this same gate.
 
 Runtime warnings are errors. The setup adapter installs a distinct process warning
 listener for each test file, raises the original warning, drains queued immediate
@@ -57,6 +58,6 @@ malformed, duplicate, incomplete and error-bearing receipts fail. Native probes
 also deliberately set the ignore option true: even though exit status and JSON
 success then pass, the independent diagnostic receipt rejects the bypass.
 
-This detects warnings and errors observed during the test lifecycle. Resource
-leak qualification is a separate remaining family. These local probes do not
-prove hosted platform policy or the complete runtime matrix.
+This detects warnings and errors observed during the test lifecycle. General
+resource-leak analysis is outside this gate; installed-consumer and full hosted
+matrix jobs supply separate execution evidence.

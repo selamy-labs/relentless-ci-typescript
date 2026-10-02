@@ -34,7 +34,7 @@ version and artifact hash are recorded in the policy. Changed or new script
 declarations fail. This review does not execute the script: `.npmrc` and the
 full installation command disable dependency scripts. Source changes to the
 policy, registry configuration or bootstrap need the same trusted approval as
-other quality policy; hosted enforcement is still pending.
+other quality policy. The App-owned issuer checks protected policy changes.
 
 On success, the bootstrap replaces `.quality-results/component-inventory.json`
 with every locked package path, version, declared license, URL, hash and
@@ -45,9 +45,8 @@ Tests cover malformed fields, blocked licenses and URLs, digest length and
 encoding, install-script changes, manifest drift, nested package versions and
 empty inventories. Native CLI probes run copied bootstrap files in temporary
 projects with no installed packages. Hosted full-analysis artifacts retain the
-component inventory alongside the raw security and mutation reports. Python's
-matching license gate, native scanner license inventory and distribution notice
-checks remain pending.
+component inventory alongside the raw security and mutation reports. The
+independent Python template uses its own lock and license policy.
 
 Sources:
 [npm lock format](https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json/),

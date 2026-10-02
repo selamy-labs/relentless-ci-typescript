@@ -24,15 +24,13 @@ Knip declares only `mise` as an external binary prerequisite through
 package. Its CI installer is pinned by version and digest. No verifier source
 file or npm dependency is excluded by this declaration.
 
-The checked-in workflow runs the full local verifier on Linux for Node 22, 24
-and 26. The Linux command builds a verifier image from a digest-pinned Mise
-base and exact `libatomic1` and `procps` package versions, then launches it
-with a private PID namespace. The host command retains only the
-checked-out workspace and dedicated tool cache mounts and confirms named
-container removal on completion. A final container guard rejects any live
-descendant, including one that detached from a direct child. A restricted
-Docker boundary probe passed on standard hosted Ubuntu 24.04, but the complete
-containerized verifier and mutation matrix remain to be qualified.
+The checked-in workflow runs `npm run verify` on standard hosted Ubuntu 24.04
+for Node 22, 24 and 26. On Linux that command builds the digest-pinned Mise
+verifier image, launches a restricted container with a private PID namespace,
+and checks its removal after completion. The frozen npm lock is installed
+without dependency lifecycle scripts. Publication requires the complete
+containerized verifier and mutation matrix at the exact candidate head; future
+changes must requalify on their own head.
 All three runtimes build and test product behavior and an isolated
 installed package on Linux, macOS and Windows. Standard hosted runners use
 read-only permissions, no persisted checkout credentials and pinned action

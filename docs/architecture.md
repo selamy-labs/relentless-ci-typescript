@@ -35,8 +35,9 @@ Remediation is to remove a forbidden edge, separate a production abstraction
 from tooling, declare a real runtime dependency in `dependencies`, or repair the
 import path. Do not silence a violation by adding a baseline, reducing severity,
 narrowing scope or moving a development package into production without a
-genuine runtime need. Policy changes still need trusted approval; hosted policy
-enforcement and the runtime matrix are not yet implemented.
+genuine runtime need. Policy changes still need trusted approval. The full
+runtime matrix runs this gate, and the source repository's protected issuer
+evaluates policy changes before publishing its App-owned check.
 
 References:
 [rule semantics](https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md)

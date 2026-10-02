@@ -33,4 +33,4 @@ Use the canonical spelling for shared directories, resolve conflicts and keep
 generated artifacts in their declared output roots. Stage intentional removals
 from the Git index before verification. Native Git/filesystem pass/fail probes
 and parser boundary tests exercise the required gate without broad exclusions.
-The hosted platform matrix and Python equivalent remain pending in this draft.
+The complete hosted analysis matrix runs this gate on every declared Node version.

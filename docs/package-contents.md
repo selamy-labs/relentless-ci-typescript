@@ -61,8 +61,9 @@ failure message. The installed archive and npm execution
 remain offline, and the owned consumer directory is removed on every outcome.
 Receipts are saved only after all consumer checks pass. Native archives with
 broken declarations, CLI metadata, import metadata or runtime behavior fail.
-A fresh renamed copy and hosted matrix from the eventual final head remain
-pending. No registry publishing is part of this template.
+A renamed copy must pass the same archive and installed-consumer checks, full
+verifier and hosted matrix before its results count as publication evidence.
+No registry publishing is part of this template.
 
 Native semantics: [npm pack](https://docs.npmjs.com/cli/v11/commands/npm-pack/)
 and [node-tar](https://github.com/isaacs/node-tar).

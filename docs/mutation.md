@@ -25,7 +25,7 @@ reported as failures requiring investigation, never counted as kills.
 The full verifier allows up to 90 minutes for each child command. The previous
 30-minute mutation deadline expired during a full run on a contended host.
 Extending the deadline keeps missing outcomes fatal while allowing the complete
-run to finish. The enclosing Docker verifier remains capped at two hours.
+run to finish. Hosted full-analysis jobs have a separate two-hour cap.
 
 The event recorder clears its event directory at the start of each run. The
 checker requires exactly one pre-execution plan and one final event. It checks

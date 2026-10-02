@@ -11,7 +11,7 @@ enforced. See individual gate documents for precise scope and limitations.
 ## Run the full local verifier
 
 Prerequisites: Node.js 22, 24 or 26, npm and Git. Linux full verification
-also requires a running Docker daemon; macOS and Windows currently use the
+also requires a running Docker daemon; macOS and Windows use the
 host-installed [Mise](https://mise.jdx.dev/) toolchain.
 Run from the repository root:
 
@@ -30,15 +30,15 @@ supplies Mise, the declared Node patch version and Stryker's process inspector.
 The build hashes the checked-in `quality/verifier.Dockerfile` into the local
 image identity, so a changed image policy cannot reuse a stale build. The
 container keeps the verifier and its descendants in a private PID namespace,
-checks for live processes
-between major stages, and removes the named container with an absence readback
-even after a failed gate. The container runs as the invoking user with a
-read-only root filesystem and dropped capabilities. The launcher passes no host
-credential environment variables and mounts no Docker socket or host credential
-directory. The checkout and a dedicated Mise tool cache are its writable mounts.
-The private `/tmp` filesystem permits executable installed-package probes.
-The complete product verifier in this container still needs full local mutation
-and hosted matrix qualification; the boundary has only passed focused probes.
+checks for live processes between major stages, and removes the named container
+with an absence readback even after a failed gate. It runs as the invoking user
+with a read-only root filesystem and dropped capabilities. The launcher passes
+no host credential environment variables and mounts no Docker socket or host
+credential directory. The checkout and a dedicated Mise cache are its writable
+mounts. A private `/tmp` permits executable installed-package probes. Hosted
+analysis runs this full command on each declared Node version; installed
+behavior runs on Linux, macOS and Windows. The PR aggregate gate requires every
+matrix leg to pass.
 
 The configured local tools include strict TypeScript, ESLint/SonarJS, Prettier,
 Knip, Vitest/fast-check, dependency-cruiser and Stryker. Strict policy values
@@ -84,8 +84,9 @@ library with your own application.
 Fix the underlying defect and rerun the full command. Do not shrink source
 scope, lower thresholds, add broad suppressions, ignore unsuccessful mutants or
 substitute a faster profile for required verification. Changes to policy need
-explicit rationale and approval from trusted maintainer/platform state; that
-hosted enforcement is not yet installed in this draft.
+explicit rationale and approval from trusted maintainer/platform state. The
+source repository's protected policy issuer must publish the dedicated App check;
+generated copies must configure and verify their own App and branch protection.
 
 ## Adapt the starting point
 
