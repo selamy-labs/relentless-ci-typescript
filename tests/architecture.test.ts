@@ -124,12 +124,16 @@ test.each([
   ["quality/example.ts", "import 'undeclared';\n", "no-undeclared"],
   ["tests/example.ts", "import 'undeclared';\n", "no-undeclared"],
   ["src/index.ts", "import './missing.js';\n", "no-unresolved"],
-])("%s rejects %s", (name, source, rule) => {
-  const result = cruise(repository({ [name]: source }));
-  expect(result.error).toBeUndefined();
-  expect(result.status, result.stdout + result.stderr).toBeGreaterThan(0);
-  expect(result.stdout).toContain(rule);
-}, 30_000);
+])(
+  "%s rejects %s",
+  (name, source, rule) => {
+    const result = cruise(repository({ [name]: source }));
+    expect(result.error).toBeUndefined();
+    expect(result.status, result.stdout + result.stderr).toBeGreaterThan(0);
+    expect(result.stdout).toContain(rule);
+  },
+  30_000,
+);
 
 test("never-imported nested module cycles are analyzed", () => {
   const result = cruise(
