@@ -53,6 +53,7 @@ jobs:
           name: analysis-node-${{ matrix.node }}
           path: |
             .quality-results/tests.json
+            .quality-results/component-inventory.json
             coverage/coverage-final.json
             .quality-results/*secrets.json
             .quality-results/dependencies.json

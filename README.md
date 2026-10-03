@@ -3,13 +3,16 @@
 A framework-neutral starting point for a small typed library and JSON CLI, with
 strict quality checks that also test their executable verifiers.
 
-This is an implementation draft. Local gates are verified; public hosted CI, the
-runtime/platform matrix and live repository protections are still being
-completed. See individual gate documents for precise scope and limitations.
+The checked-in gates run locally and in the declared GitHub Actions matrix.
+Each generated repository must separately configure protected-branch checks,
+code-owner review and a trusted policy issuer before treating those results as
+enforced. See individual gate documents for precise scope and limitations.
 
 ## Run the full local verifier
 
-Prerequisites: Node.js 22, 24 or 26, npm, Git and [Mise](https://mise.jdx.dev/).
+Prerequisites: Node.js 22, 24 or 26, npm and Git. Linux full verification
+also requires a running Docker daemon; macOS and Windows use the
+host-installed [Mise](https://mise.jdx.dev/) toolchain.
 Run from the repository root:
 
 ```sh
@@ -21,7 +24,21 @@ definitions, scans secrets/dependencies/source security, and runs full mutation
 testing. Tool downloads and vulnerability queries need network access; code
 checks require no accounts or credentials. Mise pins native scanner versions and
 platform artifact hashes. A missing tool, failed command, malformed report or
-incomplete inventory fails verification.
+incomplete inventory fails verification. On Linux, a container built from a
+digest-pinned Mise image and exact `libatomic1` and `procps` package versions
+supplies Mise, the declared Node patch version and Stryker's process inspector.
+The build hashes the checked-in `quality/verifier.Dockerfile` into the local
+image identity, so a changed image policy cannot reuse a stale build. The
+container keeps the verifier and its descendants in a private PID namespace,
+checks for live processes between major stages, and removes the named container
+with an absence readback even after a failed gate. It runs as the invoking user
+with a read-only root filesystem and dropped capabilities. The launcher passes
+no host credential environment variables and mounts no Docker socket or host
+credential directory. The checkout and a dedicated Mise cache are its writable
+mounts. A private `/tmp` permits executable installed-package probes. Hosted
+analysis runs this full command on each declared Node version; installed
+behavior runs on Linux, macOS and Windows. The PR aggregate gate requires every
+matrix leg to pass.
 
 The configured local tools include strict TypeScript, ESLint/SonarJS, Prettier,
 Knip, Vitest/fast-check, dependency-cruiser and Stryker. Strict policy values
@@ -67,8 +84,9 @@ library with your own application.
 Fix the underlying defect and rerun the full command. Do not shrink source
 scope, lower thresholds, add broad suppressions, ignore unsuccessful mutants or
 substitute a faster profile for required verification. Changes to policy need
-explicit rationale and approval from trusted maintainer/platform state; that
-hosted enforcement is not yet installed in this draft.
+explicit rationale and approval from trusted maintainer/platform state. The
+source repository's protected policy issuer must publish the dedicated App check;
+generated copies must configure and verify their own App and branch protection.
 
 ## Adapt the starting point
 

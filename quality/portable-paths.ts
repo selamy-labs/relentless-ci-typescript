@@ -58,6 +58,7 @@ function remember(seen: Map<string, string>, prefix: string): void {
 
 /** This text-only template has no product binary assets or native extensions. */
 export function verifyTextKind(name: string): void {
+  if (name === "quality/verifier.Dockerfile") return;
   if (
     !textNames.has(basename(name)) &&
     !textExtensions.has(extname(name).toLowerCase())

@@ -3,8 +3,17 @@ import { ESLint, type Linter } from "eslint";
 import { expect, test } from "vitest";
 import eslintConfig from "../eslint.config.mjs";
 import vitestConfig from "../quality/vitest-config.js";
+import checks from "../quality/checks.json" with { type: "json" };
+import manifest from "../package.json" with { type: "json" };
 
 const sourceFile = resolve("src/validation.ts");
+test("stability gate repeats the full suite with two shuffled seeds", () => {
+  expect(checks).toContainEqual(["run", "stability"]);
+  expect(manifest.scripts.stability).toBe(
+    "npm test -- --sequence.shuffle --sequence.seed 41 && npm test -- --sequence.shuffle --sequence.seed 73",
+  );
+  expect(vitestConfig.test.retry).toBe(0);
+});
 function rules(results: ESLint.LintResult[]): string[] {
   return results.flatMap((result) =>
     result.messages.flatMap((message) =>
@@ -57,6 +66,25 @@ test("native ESLint configuration enforces strict semantic rules", async () => {
     { filePath: sourceFile },
   );
   expect(rules(result)).toContain("@typescript-eslint/no-explicit-any");
+}, 30_000);
+
+test("native ESLint requires every union switch case", async () => {
+  const prefix =
+    'type Kind = "a" | "b"; export function kind(value: Kind): number { switch (value) {';
+  const missing = await new ESLint().lintText(
+    `${prefix} case "a": return 1; default: return 0; } }`,
+    { filePath: sourceFile },
+  );
+  expect(rules(missing)).toContain(
+    "@typescript-eslint/switch-exhaustiveness-check",
+  );
+  const complete = await new ESLint().lintText(
+    `${prefix} case "a": return 1; case "b": return 2; } }`,
+    { filePath: sourceFile },
+  );
+  expect(rules(complete)).not.toContain(
+    "@typescript-eslint/switch-exhaustiveness-check",
+  );
 }, 30_000);
 
 test("native imported configuration enrolls the focused-test plugin", async () => {

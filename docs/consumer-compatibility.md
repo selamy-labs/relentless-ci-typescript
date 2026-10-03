@@ -40,8 +40,9 @@ conditional exports. Those capabilities are absent in the initial template;
 adding them requires expanding the protected consumer profile and evaluating
 those tools. This release makes no CommonJS promise.
 
-Local Node 26 verification passes. The declared Node 22/24/26 hosted matrices,
-copy/rename tests and final repository enforcement remain pending.
+The hosted matrix runs this installed consumer on Node 22, 24 and 26 across
+Linux, macOS and Windows. A separately renamed template copy must pass its
+own full verifier and hosted matrix before publication evidence credits it.
 
 Native execution semantics:
 [npm exec](https://docs.npmjs.com/cli/v11/commands/npm-exec/).

@@ -12,23 +12,21 @@ disabled, compiles the verifier, runs the protected check registry, runs pinned
 security tools, and executes full mutation with raw-result validation. npm's own
 CLI is invoked through the current Node executable, avoiding Windows
 shell-wrapper differences. All process failures and deadlines fail the verifier.
-The current required registry includes build, typing, lint, formatting,
-dead-code, architecture and coverage checks; packaging, hosted enforcement and
-other inventory gates remain pending.
+The required registry includes build, typing, lint, formatting, dead-code,
+architecture, coverage, documentation, packaging and installed-consumer checks.
+The hosted matrix runs the same full command on each declared Node version.
 
 `mise.toml` and `mise.lock` pin Gitleaks 8.30.1, OSV-Scanner 2.6.0 and Opengrep
 1.30.0, with exact artifact URLs and hashes for Linux x64, macOS arm64/x64 and
-Windows x64. Only local macOS/Node 26 execution is currently verified. The
-hosted runtime/platform matrix remains pending. Code checks require no paid
+Windows x64. Code checks require no paid
 service or login. Scans of known vulnerabilities require public network access;
 native analyzer binaries are separately hash-pinned and are not part of the npm
 vulnerability inventory.
 
 Scanner arguments live in `quality/security-commands.json`. This is protected
 policy data, alongside rules, tool versions, suppressions and check definitions.
-It must receive the same trusted maintainer review as a workflow change; the
-hosted approval mechanism is still being implemented. Moving arguments to JSON
-does not authorize weakening them.
+It must receive the same trusted maintainer review as a workflow change. Moving
+arguments to JSON does not authorize weakening them.
 
 Before scanning, all four `.quality-results` security reports are removed. New
 missing, malformed or invalid-UTF8 output fails. Gitleaks checks the working
@@ -42,8 +40,8 @@ OSV scans all locked development, transitive and platform-specific packages
 without a severity floor or reachability filter. The validator independently
 derives every distinct name/version/ecosystem tuple from the npm lock, including
 nested installations and aliases. Repeated installations of an identical version
-are audited once; different versions remain distinct. The current 462 lock
-entries correspond to 423 distinct tuples. Omitted/substituted packages,
+are audited once; different versions remain distinct. The current lock has 550
+package paths and 506 distinct tuples. Omitted/substituted packages,
 duplicate audit records, findings, errors and incorrect lockfile provenance fail
 independently of the tool status.
 
@@ -59,9 +57,9 @@ must retain completeness tests when upgraded.
 
 Product, executable verifier modules and root Vitest/ESLint adapters are
 enrolled in coverage and mutation. Policy values are protected declarative JSON;
-native configuration tests exercise the numeric boundaries. Full clean-clone,
-copy/rename and installed-artifact tests remain pending. These are delivery
-limitations, not exclusions approved for publication.
+native configuration tests exercise the numeric boundaries. The full hosted
+matrix and separately qualified renamed copy supply publication evidence for
+the complete source and installed artifact.
 
 Primary references:
 [OSV report/exit semantics](https://github.com/google/osv-scanner/blob/main/docs/output.md),
