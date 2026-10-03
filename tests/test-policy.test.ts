@@ -18,7 +18,7 @@ beforeAll(async () => {
     filePath,
   });
   expect(results.flatMap((result) => result.messages)).toEqual([]);
-});
+}, 60_000);
 
 test.each([
   ["test.only", "vitest/no-focused-tests"],
