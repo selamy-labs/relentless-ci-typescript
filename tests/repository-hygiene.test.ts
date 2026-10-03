@@ -89,6 +89,18 @@ test("clean untracked first-use text is checked without a commit", () => {
   }).not.toThrow();
 });
 
+test("enrolls only the executable verifier Dockerfile as authored text", () => {
+  const root = repository();
+  file(root, "quality/verifier.Dockerfile", "FROM pinned\n");
+  expect(() => {
+    verifyRepository(root);
+  }).not.toThrow();
+  file(root, "other.Dockerfile", "FROM unreviewed\n");
+  expect(() => {
+    verifyRepository(root);
+  }).toThrow("protected text inventory");
+});
+
 test("native unmerged index is rejected even after the text is resolved", () => {
   const root = repository();
   file(root, "src/a.ts", "export const value = 1;\n");

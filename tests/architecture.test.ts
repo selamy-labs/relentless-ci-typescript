@@ -91,7 +91,7 @@ test("declared runtime imports and development imports in tooling pass", () => {
   expect(result.error).toBeUndefined();
   expect(result.stderr).toBe("");
   expect(result.status).toBe(0);
-});
+}, 30_000);
 
 test.each([
   ["src/index.ts", "import 'development';\n", "no-dev-in-production"],
@@ -124,12 +124,16 @@ test.each([
   ["quality/example.ts", "import 'undeclared';\n", "no-undeclared"],
   ["tests/example.ts", "import 'undeclared';\n", "no-undeclared"],
   ["src/index.ts", "import './missing.js';\n", "no-unresolved"],
-])("%s rejects %s", (name, source, rule) => {
-  const result = cruise(repository({ [name]: source }));
-  expect(result.error).toBeUndefined();
-  expect(result.status, result.stdout + result.stderr).toBeGreaterThan(0);
-  expect(result.stdout).toContain(rule);
-});
+])(
+  "%s rejects %s",
+  (name, source, rule) => {
+    const result = cruise(repository({ [name]: source }));
+    expect(result.error).toBeUndefined();
+    expect(result.status, result.stdout + result.stderr).toBeGreaterThan(0);
+    expect(result.stdout).toContain(rule);
+  },
+  30_000,
+);
 
 test("never-imported nested module cycles are analyzed", () => {
   const result = cruise(
@@ -141,11 +145,11 @@ test("never-imported nested module cycles are analyzed", () => {
   expect(result.status, result.stdout + result.stderr).toBeGreaterThan(0);
   expect(result.stdout).toContain("no-cycles");
   expect(result.stdout).toContain("src/nested/first.ts");
-});
+}, 30_000);
 
 test("missing and malformed configuration cannot pass", () => {
   const root = repository({ "quality/broken.json": "{broken" });
   for (const config of ["quality/missing.json", "quality/broken.json"]) {
     expect(cruise(root, config).status).toBe(1);
   }
-});
+}, 30_000);

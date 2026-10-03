@@ -21,12 +21,12 @@ optional local environment), `.codegraph` (local indexing), `.pytest_cache` and
 (`npm run mutation` and gate reports), `.quality-build`
 (`tsc -p tsconfig.quality.json`), and `.stryker-tmp` (`npm run mutation`). None
 may contain tracked inputs. These entries authorize local generated state, not
-exceptions for maintained source. Hosted jobs must recreate environments and
-artifacts from protected inputs; the complete hosted freshness checks are still
-being implemented.
+exceptions for maintained source. Hosted jobs recreate environments and
+artifacts from protected inputs. The verifier removes stale reports before
+checking fresh native coverage, test, security and mutation results.
 
-This gate is part of the shared full local verifier. Hosted enforcement,
-policy-change approvals and generated-artifact freshness still remain pending.
+This gate is part of the shared full local verifier and every hosted analysis
+job. Protected policy changes require the separate App-owned issuer check.
 
 Executable tool adapters, including `quality/vitest-config.ts`, are
 enrolled in V8 coverage and Stryker mutation as well as size, typing, lint,

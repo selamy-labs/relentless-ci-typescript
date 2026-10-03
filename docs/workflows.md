@@ -24,8 +24,14 @@ Knip declares only `mise` as an external binary prerequisite through
 package. Its CI installer is pinned by version and digest. No verifier source
 file or npm dependency is excluded by this declaration.
 
-The checked-in workflow runs the full local verifier on Linux for Node 22, 24
-and 26. All three runtimes build and test product behavior and an isolated
+The checked-in workflow runs `npm run verify` on standard hosted Ubuntu 24.04
+for Node 22, 24 and 26. On Linux that command builds the digest-pinned Mise
+verifier image, launches a restricted container with a private PID namespace,
+and checks its removal after completion. The frozen npm lock is installed
+without dependency lifecycle scripts. Publication requires the complete
+containerized verifier and mutation matrix at the exact candidate head; future
+changes must requalify on their own head.
+All three runtimes build and test product behavior and an isolated
 installed package on Linux, macOS and Windows. Standard hosted runners use
 read-only permissions, no persisted checkout credentials and pinned action
 commits. Installer caches are disabled. Candidate-specific concurrency groups
@@ -37,6 +43,11 @@ analysis receipts are retained for seven days. Daily runs repeat the same checks
 against main to detect newly disclosed dependency vulnerabilities.
 
 Native local probes establish scanner behavior and aggregate-state rejection.
-The workflow has not yet run on GitHub; runtime matrices and required platform
-protections remain unverified until publication and live readback. Local scan
-success does not prove trusted policy approval or remote branch protection.
+The source template's protected `main` requires the aggregate `Relentless CI
+gate` from the GitHub Actions App. That check alone does not establish
+source-bound maintainer rationale for gate weakening; a separately trusted
+policy issuer and live bypass probes are also required. The `CODEOWNERS` file
+assigns the whole repository, including `.github`, to the two current
+administrators. Code-owner review takes effect only after the file is on
+protected `main` and the native review setting is enabled and read back. A
+generated repository must configure and verify its own protection settings.
