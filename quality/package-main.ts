@@ -1,5 +1,5 @@
 import { verifyPackageBuild } from "./package-build.js";
-import { readJson } from "./security.js";
+import { readJson } from "./json-file.js";
 import { z } from "zod";
 import { join } from "node:path";
 

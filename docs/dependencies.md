@@ -48,6 +48,14 @@ projects with no installed packages. Hosted full-analysis artifacts retain the
 component inventory alongside the raw security and mutation reports. The
 independent Python template uses its own lock and license policy.
 
+The `micromark-extension-math` override selects `katex` 0.18.2 because its
+declared range still selects a vulnerable release. The lock also selects
+`source-map-js` 1.2.2 within its existing range. These updates address
+[the math renderer advisory](https://github.com/KaTeX/KaTeX/security/advisories/GHSA-238p-pmpm-9mq7)
+and [the source map fix](https://github.com/7rulnik/source-map-js/releases/tag/v1.2.2).
+Revisit the override when the parent package permits a patched release. Neither
+update changes vulnerability thresholds or permits dependency scripts.
+
 Sources:
 [npm lock format](https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json/),
 [frozen installation](https://docs.npmjs.com/cli/v11/commands/npm-ci/),

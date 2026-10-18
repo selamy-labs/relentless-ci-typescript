@@ -153,3 +153,48 @@ test("missing and malformed configuration cannot pass", () => {
     expect(cruise(root, config).status).toBe(1);
   }
 }, 30_000);
+
+test.each([
+  ["json-file", "security"],
+  ["json-file", "pipeline"],
+  ["coverage-report", "security"],
+  ["coverage-report", "pipeline"],
+])(
+  "%s rejects direct and transitive paths into %s",
+  (source, target) => {
+    const root = repository({
+      [`quality/${source}.ts`]: "import './bridge.js';\n",
+      "quality/bridge.ts": `import './${target}.js';\n`,
+      [`quality/${target}.ts`]: "export const value = 1;\n",
+    });
+    const transitive = cruise(root);
+    expect(transitive.error).toBeUndefined();
+    expect(transitive.status).toBe(1);
+    expect(transitive.stdout).toContain(
+      "json-checks-independent-of-orchestration",
+    );
+
+    writeFileSync(
+      join(root, `quality/${source}.ts`),
+      `import './${target}.js';\n`,
+    );
+    const direct = cruise(root);
+    expect(direct.status).toBe(1);
+    expect(direct.stdout).toContain("json-checks-independent-of-orchestration");
+  },
+  30_000,
+);
+
+test("JSON reader consumers and orchestration imports remain legal", () => {
+  const root = repository({
+    "quality/json-file.ts": "export const value = 1;\n",
+    "quality/security.ts": "import './json-file.js';\n",
+    "quality/coverage-report.ts": "import './json-file.js';\n",
+    "quality/pipeline.ts": "import './security.js'; import './json-file.js';\n",
+    "quality/verify.ts": "import './pipeline.js';\n",
+    "tests/reader.ts": "import '../quality/json-file.js';\n",
+  });
+  const result = cruise(root);
+  expect(result.error).toBeUndefined();
+  expect(result.status, result.stdout + result.stderr).toBe(0);
+}, 30_000);

@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { z } from "zod";
-import { readJson } from "./security.js";
+import { readJson } from "./json-file.js";
 
 const argumentsSchema = z.array(z.string().min(1)).min(1);
 const policySchema = z.strictObject({

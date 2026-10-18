@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { readJson } from "./security.js";
+import { readJson } from "./json-file.js";
 
 const metadata = z.object({
   exports: z.object({

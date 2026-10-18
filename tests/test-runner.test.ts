@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, expect, test } from "vitest";
-import { readJson } from "../quality/security.js";
+import { readJson } from "../quality/json-file.js";
 import { verifyTestReport } from "../quality/test-report.js";
 
 const roots: string[] = [];
