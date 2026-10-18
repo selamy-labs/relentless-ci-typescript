@@ -11,7 +11,8 @@ import { join } from "node:path";
 import { afterEach, expect, test, vi } from "vitest";
 import { z } from "zod";
 import { run } from "../quality/commands.js";
-import { readJson, verifySecurity } from "../quality/security.js";
+import { readJson } from "../quality/json-file.js";
+import { verifySecurity } from "../quality/security.js";
 
 vi.mock("../quality/commands.js", () => ({ run: vi.fn() }));
 const roots: string[] = [];
@@ -167,21 +168,6 @@ test("findings fail even after an apparently successful tool exit", () => {
     verifySecurity(root, 5000);
   }).toThrow();
   expect(run).toHaveBeenCalledTimes(1);
-});
-
-test("JSON input rejects missing files, invalid encoding and malformed content", () => {
-  const root = repository();
-  const path = join(root, "report.json");
-  expect(() => readJson(path)).toThrow();
-  writeFileSync(path, "{");
-  expect(() => readJson(path)).toThrow(SyntaxError);
-  writeFileSync(
-    path,
-    new Uint8Array([123, 34, 100, 97, 116, 97, 34, 58, 34, 255, 34, 125]),
-  );
-  expect(() => readJson(path)).toThrow(TypeError);
-  writeFileSync(path, '{"results":[]}');
-  expect(readJson(path)).toEqual({ results: [] });
 });
 
 test.each(["audit", "sast"])(

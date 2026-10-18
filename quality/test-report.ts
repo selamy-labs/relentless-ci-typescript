@@ -1,7 +1,7 @@
 import { rmSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { readJson } from "./security.js";
+import { readJson } from "./json-file.js";
 import { prepareDiagnostics } from "./runtime-diagnostics.js";
 import { testSources, verifyInventory } from "./test-inventory.js";
 

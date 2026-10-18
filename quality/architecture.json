@@ -1,6 +1,17 @@
 {
   "forbidden": [
     {
+      "name": "json-reader-is-a-leaf",
+      "severity": "error",
+      "from": {
+        "path": "^quality/json-file[.]ts$"
+      },
+      "to": {
+        "path": "^quality/(security|pipeline)[.]ts$",
+        "reachable": true
+      }
+    },
+    {
       "name": "no-cycles",
       "severity": "error",
       "from": {},

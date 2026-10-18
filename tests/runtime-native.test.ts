@@ -7,7 +7,7 @@ import {
   diagnosticsPath,
   verifyDiagnostics,
 } from "../quality/runtime-diagnostics.js";
-import { readJson } from "../quality/security.js";
+import { readJson } from "../quality/json-file.js";
 import { verifyTestReport } from "../quality/test-report.js";
 
 const roots: string[] = [];

@@ -1,7 +1,7 @@
 import { rmSync } from "node:fs";
 import { join, sep } from "node:path";
 import { z } from "zod";
-import { readJson } from "./security.js";
+import { readJson } from "./json-file.js";
 
 const key = z.string().min(1);
 const count = z.number().int().positive();

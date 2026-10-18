@@ -15,7 +15,7 @@ import {
   verifyDiagnostics,
   verifyRuntimeDiagnostics,
 } from "../quality/runtime-diagnostics.js";
-import { readJson } from "../quality/security.js";
+import { readJson } from "../quality/json-file.js";
 
 const roots: string[] = [];
 function repository(): string {

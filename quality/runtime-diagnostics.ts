@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { readJson } from "./security.js";
+import { readJson } from "./json-file.js";
 import { testSources, verifyInventory } from "./test-inventory.js";
 
 const receipt = z.strictObject({
