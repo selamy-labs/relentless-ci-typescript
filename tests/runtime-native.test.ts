@@ -18,6 +18,12 @@ import { readJson } from "../quality/json-file.js";
 import { verifyTestReport } from "../quality/test-report.js";
 
 const roots: string[] = [];
+
+function rejectDiagnostics(root: string, fixture: string): void {
+  expect(() => {
+    verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
+  }).toThrow();
+}
 function nativeRun(body: string, ignore = false) {
   return nativeProgram(
     `import { test, expect } from 'vitest';\ntest('native case', async () => { ${body}; expect(1).toBe(1); });\n`,
@@ -112,9 +118,7 @@ test.each([
     );
     expect(result.status, result.stderr).toBe(0);
     verifyTestReport(readJson(join(root, "tests.json")), [fixture], root);
-    expect(() => {
-      verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
-    }).toThrow();
+    rejectDiagnostics(root, fixture);
   },
   30_000,
 );
@@ -127,9 +131,7 @@ test("native retry history and attempt diagnostics independently reject fail-the
   const report = readJson(join(root, "tests.json"));
   expect(report).toMatchObject({ success: true, numFailedTests: 0 });
   expect(() => verifyTestReport(report, [fixture], root)).toThrow();
-  expect(() => {
-    verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
-  }).toThrow();
+  rejectDiagnostics(root, fixture);
 }, 30_000);
 
 test("native guarded tests generate independent clean diagnostic evidence", () => {
@@ -150,9 +152,7 @@ test.each([
     const { root, fixture, result } = nativeRun(body);
     expect(result.status, result.stderr).toBe(1);
     verifyTestReport(readJson(join(root, "tests.json")), [fixture], root);
-    expect(() => {
-      verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
-    }).toThrow();
+    rejectDiagnostics(root, fixture);
   },
 );
 
@@ -168,7 +168,5 @@ test("the independent receipt rejects the native zero-exit ignored-error bypass"
     unhandledErrors: 1,
     files: [fixture],
   });
-  expect(() => {
-    verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
-  }).toThrow();
+  rejectDiagnostics(root, fixture);
 });

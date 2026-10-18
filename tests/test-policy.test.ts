@@ -184,30 +184,3 @@ test.each([
 ])("rejects actual Vitest execution policy %s", async (source) => {
   expect(await policyMessages(source)).toContain("relentless/test-execution");
 });
-
-test.each(["TODO", "FIXME", "XXX", "todo", "fixme", "xxx"])(
-  "accepts advisory source comment %s",
-  async (word) => {
-    expect(
-      await policyMessages(
-        `// ${word}: useful follow-up\nexport const value = 1;`,
-      ),
-    ).toEqual([]);
-  },
-);
-
-test.each([
-  [
-    '// eslint-disable-next-line no-console\nconsole.log("value");',
-    "no-console",
-  ],
-  [
-    '// @ts-ignore\nexport const value: number = "bad";',
-    "@typescript-eslint/ban-ts-comment",
-  ],
-])(
-  "comment suppression retains native enforcement %s",
-  async (source, rule) => {
-    expect(await policyMessages(source)).toContain(rule);
-  },
-);

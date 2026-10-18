@@ -44,18 +44,14 @@ test.each([
   ).toBe(true);
 });
 
-test.each(["TODO", "FIXME", "XXX"])(
-  "rejects incomplete-work marker %s",
+test.each(["TODO", "FIXME", "XXX", "todo", "fixme", "xxx"])(
+  "accepts advisory source comment %s",
   async (marker) => {
     const results = await new ESLint().lintText(
-      `// ${marker}: unfinished behavior\nexport const safe = 1;`,
+      `// ${marker}: useful follow-up\nexport const safe = 1;`,
       { filePath: sourceFile },
     );
-    expect(
-      results.flatMap((result) =>
-        result.messages.map((message) => message.ruleId),
-      ),
-    ).toContain("no-warning-comments");
+    expect(results.flatMap((result) => result.messages)).toEqual([]);
   },
 );
 
