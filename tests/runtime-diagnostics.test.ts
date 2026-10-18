@@ -228,6 +228,29 @@ test.each([
 });
 
 test.each([
+  { reason: "missing case", cases: [recordedCase(expected[0])] },
+  {
+    reason: "duplicate identity",
+    cases: [
+      recordedCase(expected[0], "same"),
+      recordedCase(expected[1], "same"),
+    ],
+  },
+  {
+    reason: "extra duplicate",
+    cases: [
+      recordedCase(expected[0]),
+      recordedCase(expected[1]),
+      recordedCase(expected[0]),
+    ],
+  },
+])("case reconciliation explains $reason", ({ cases }) => {
+  expect(() => {
+    verifyDiagnostics({ ...clean(), cases }, expected, repository(), 2);
+  }).toThrow(/diagnostic cases.*completed tests/u);
+});
+
+test.each([
   null,
   {},
   [],
@@ -243,14 +266,6 @@ test.each([
   { ...clean(), configuration: { retry: 0, allowOnly: true } },
   { ...clean(), configuration: {} },
   { ...clean(), cases: [] },
-  { ...clean(), cases: [recordedCase(expected[0])] },
-  {
-    ...clean(),
-    cases: [
-      recordedCase(expected[0], "same"),
-      recordedCase(expected[1], "same"),
-    ],
-  },
   {
     ...clean(),
     cases: [recordedCase(expected[0]), recordedCase("tests/absent.test.ts")],

@@ -10,6 +10,7 @@ import policy from "./quality/eslint-policy.json" with { type: "json" };
 /** @typedef {import("@typescript-eslint/utils").TSESTree.ObjectExpression} ObjectExpression */
 /** @typedef {import("@typescript-eslint/utils").TSESTree.Property} Property */
 /** @typedef {import("@typescript-eslint/utils").TSESTree.MemberExpression} MemberExpression */
+/** @typedef {import("@typescript-eslint/utils").TSESLint.RuleModule<"shortcut", []>} TypedRule */
 
 /** @param {readonly Declaration[] | undefined} declarations */
 function vitestDeclaration(declarations) {
@@ -34,17 +35,15 @@ const defaults = new Map([
   ["fails", "false"],
 ]);
 
-/** @type {import("@typescript-eslint/utils").TSESLint.RuleModule<"shortcut", []>} */
+/** @type {Pick<TypedRule, "create"> & { meta: import("eslint").Rule.RuleMetaData }} */
 const testExecution = {
   meta: {
-    type: "problem",
     schema: [],
     messages: {
       shortcut:
         "Vitest tests must run once, unconditionally, and pass normally.",
     },
   },
-  defaultOptions: [],
   create(context) {
     const services = ESLintUtils.getParserServices(context);
     const checker = services.program.getTypeChecker();
@@ -55,9 +54,7 @@ const testExecution = {
         case "Identifier":
           return property.computed ? typedKey(property.key) : property.key.name;
         case "Literal":
-          return typeof property.key.value === "string"
-            ? property.key.value
-            : undefined;
+          return String(property.key.value);
         default:
           return typedKey(property.key);
       }

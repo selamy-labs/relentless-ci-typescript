@@ -1,10 +1,10 @@
 import { resolve } from "node:path";
 import { ESLint } from "eslint";
-import { beforeAll, expect, test } from "vitest";
+import { expect, test } from "vitest";
 
 const sourceFile = resolve("src/validation.ts");
 
-beforeAll(async () => {
+test("native analyzer accepts ordinary source", async () => {
   const results = await new ESLint().lintText("export const safe = 1;", {
     filePath: sourceFile,
   });

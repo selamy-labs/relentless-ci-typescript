@@ -30,7 +30,9 @@ The supported discovery convention is `tests/**/*.test.ts`. Test-like files
 using other names are outside that convention and require an explicit scope
 change before they can be credited. The native ESLint probes
 reject focused, skipped, alternate Node imports and weakening retry options.
-They first assert a clean analyzer setup before the negative cases. A separate
+Clean analyzer controls are ordinary tests, so their failures remain individual
+test failures during mutation analysis instead of blocking cases in a setup hook.
+A separate
 behavioral witness passes the imported configuration to native ESLint and
 requires its test plugin to reject a focused case. This catches missing plugin
 registration and an incorrect test-file scope during full mutation.
