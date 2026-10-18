@@ -135,7 +135,7 @@ const testExecution = {
       ) {
         return;
       }
-      if (name === "test" && property.value.type === "ObjectExpression") {
+      if (property.value.type === "ObjectExpression") {
         options(property.value);
       }
       const expected = defaults.get(name);

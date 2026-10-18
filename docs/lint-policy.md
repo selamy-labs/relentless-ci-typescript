@@ -54,11 +54,13 @@ conditional and expected-failure modifiers through imports, namespace/constant
 aliases, destructuring and supported chains. Literal and constant bracket keys
 are covered. The rule applies to all enrolled TypeScript, including configuration.
 
-Direct options on native Vitest calls and nested `defineConfig` test options
+Direct options on native Vitest calls and nested Vitest-owned configuration
 must retain literal types zero for retries/repetitions and false for execution
 flags. Ordinary domain properties, fixture data and diagnostic metadata remain
 allowed. The checker distinguishes declaration ownership and callable API
 members; it does not reserve matching field names throughout a test file.
+The same ownership check applies at every nested object, including rejection of
+`typecheck.only: true`, which disables runtime tests.
 
 Static matching does not trace arbitrary option variables, spreads, dynamic
 keys or type-assertion wrappers. Independent native runtime diagnostics require

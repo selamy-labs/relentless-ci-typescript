@@ -190,6 +190,7 @@ test.each([
   'import { test, expect } from "vitest"; test("case", { timeout: 500 }, () => { expect(1).toBe(1); });',
   'import { vi } from "vitest"; vi.stubGlobal("configuration", { retry: 1 });',
   'import { defineConfig } from "vitest/config"; const configuration = { retry: 0 }; export default defineConfig({ test: configuration });',
+  'import { defineConfig } from "vitest/config"; export default defineConfig({ test: { typecheck: { enabled: true, only: false }, coverage: { enabled: false, thresholds: { lines: 100 } } } });',
   'import type { TestOptions } from "vitest"; export function copy(options: TestOptions): TestOptions { return options; } export const data = copy({ retry: 1 });',
   "export function select(domain: { skipIf: () => number }): number { const { skipIf: choose } = domain; return choose(); }",
   'export function invoke(domain: Record<"skipIf", () => number>): number { return domain.skipIf(); }',
@@ -222,6 +223,7 @@ test.each([
   'import { test } from "vitest"; test("case", { repeats: 1 }, () => {});',
   'import { test } from "vitest"; test.each([1])("case", { retry: 1 }, () => {});',
   'import { defineConfig } from "vitest/config"; export default defineConfig({ test: { retry: 1 } });',
+  'import { defineConfig } from "vitest/config"; export default defineConfig({ test: { typecheck: { enabled: true, only: true } } });',
   'import { defineConfig, type ViteUserConfig } from "vitest/config"; declare module "vitest/config" { function defineConfig(config: ViteUserConfig): ViteUserConfig; } export default defineConfig({ test: { retry: 1 } });',
 ])("rejects actual Vitest execution policy %s", async (source) => {
   expect(await policyMessages(source)).toContain("relentless/test-execution");
