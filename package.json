@@ -74,6 +74,9 @@
   "overrides": {
     "typed-rest-client": {
       "qs": "6.16.0"
+    },
+    "micromark-extension-math": {
+      "katex": "0.18.2"
     }
   }
 }
