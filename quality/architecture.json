@@ -1,10 +1,10 @@
 {
   "forbidden": [
     {
-      "name": "json-reader-is-a-leaf",
+      "name": "json-checks-independent-of-orchestration",
       "severity": "error",
       "from": {
-        "path": "^quality/json-file[.]ts$"
+        "path": "^quality/(json-file|coverage-report)[.]ts$"
       },
       "to": {
         "path": "^quality/(security|pipeline)[.]ts$",
