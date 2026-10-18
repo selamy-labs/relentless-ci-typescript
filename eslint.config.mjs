@@ -51,16 +51,21 @@ const testExecution = {
 
     /** @param {Property} property */
     function propertyName(property) {
-      if (!property.computed && property.key.type === "Identifier") {
-        return property.key.name;
+      switch (property.key.type) {
+        case "Identifier":
+          return property.computed ? typedKey(property.key) : property.key.name;
+        case "Literal":
+          return typeof property.key.value === "string"
+            ? property.key.value
+            : undefined;
+        default:
+          return typedKey(property.key);
       }
-      if (
-        property.key.type === "Literal" &&
-        typeof property.key.value === "string"
-      ) {
-        return property.key.value;
-      }
-      const key = services.getTypeAtLocation(property.key);
+    }
+
+    /** @param {import("@typescript-eslint/utils").TSESTree.Node} node */
+    function typedKey(node) {
+      const key = services.getTypeAtLocation(node);
       return key.isStringLiteral() ? key.value : undefined;
     }
 

@@ -60,8 +60,9 @@ flags. Ordinary domain properties, fixture data and diagnostic metadata remain
 allowed. The checker distinguishes declaration ownership and callable API
 members; it does not reserve matching field names throughout a test file.
 
-Static matching does not trace arbitrary option variables, spreads or dynamic
-keys. Independent native runtime diagnostics require zero effective retries,
+Static matching does not trace arbitrary option variables, spreads, dynamic
+keys or type-assertion wrappers. Independent native runtime diagnostics require
+zero effective retries,
 repetitions and actual attempt counts, with ordinary run mode and no expected
 failures. Root retry configuration is checked even when a test overrides it.
 

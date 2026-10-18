@@ -94,6 +94,16 @@ test.each([
     0,
   ],
   [
+    "variable retry allowance",
+    'const options = { retry: 1 }; test("case", options, () => { expect(1).toBe(1); });',
+    0,
+  ],
+  [
+    "spread retry allowance",
+    'const options = { retry: 1 }; test("case", { ...options }, () => { expect(1).toBe(1); });',
+    0,
+  ],
+  [
     "expected failure",
     'test.fails("case", () => { throw new Error("expected"); });',
     0,
