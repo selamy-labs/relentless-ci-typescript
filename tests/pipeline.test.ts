@@ -27,7 +27,7 @@ vi.mock("../quality/source-scope.js", () => ({
 }));
 vi.mock("../quality/test-report.js", () => ({
   prepareTests: vi.fn(),
-  verifyTests: vi.fn(),
+  verifyTests: vi.fn(() => 1),
 }));
 vi.mock("../quality/runtime-diagnostics.js", () => ({
   verifyRuntimeDiagnostics: vi.fn(),
@@ -60,6 +60,7 @@ test.each([1, 5000])(
     });
     vi.mocked(verifyTests).mockImplementation(() => {
       received.push("test integrity");
+      return 3;
     });
     vi.mocked(verifyRuntimeDiagnostics).mockImplementation(() => {
       received.push("runtime diagnostics");
@@ -84,7 +85,11 @@ test.each([1, 5000])(
     expect(prepareCoverage).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifyCoverage).toHaveBeenCalledExactlyOnceWith(root, []);
     expect(verifyTests).toHaveBeenCalledExactlyOnceWith(root, []);
-    expect(verifyRuntimeDiagnostics).toHaveBeenCalledExactlyOnceWith(root, []);
+    expect(verifyRuntimeDiagnostics).toHaveBeenCalledExactlyOnceWith(
+      root,
+      [],
+      3,
+    );
     expect(verifySources).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifyTracked).toHaveBeenCalledExactlyOnceWith(root);
     expect(verifySecurity).toHaveBeenCalledExactlyOnceWith(root, timeout);

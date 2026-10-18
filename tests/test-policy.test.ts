@@ -10,6 +10,16 @@ const filePath = resolve("tests/test-policy.test.ts");
 const imports = 'import { test, describe, expect } from "vitest";\n';
 const body = '"example", () => { expect(1).toBe(1); }';
 
+async function policyMessages(source: string): Promise<string[]> {
+  const results = await new ESLint({
+    overrideConfig,
+    overrideConfigFile: true,
+  }).lintText(source, { filePath });
+  return results.flatMap((result) =>
+    result.messages.map((message) => String(message.ruleId)),
+  );
+}
+
 beforeAll(async () => {
   const results = await new ESLint({
     overrideConfig,
@@ -29,10 +39,10 @@ test.each([
   ['test["skip"]', "vitest/no-disabled-tests"],
   ["describe.skip", "vitest/no-disabled-tests"],
   ["test.todo", "vitest/warn-todo"],
-  ["test.fails", "no-restricted-syntax"],
-  ["test.skipIf(true)", "no-restricted-syntax"],
-  ["test.runIf(false)", "no-restricted-syntax"],
-  ['test["skipIf"](true)', "no-restricted-syntax"],
+  ["test.fails", "relentless/test-execution"],
+  ["test.skipIf(true)", "relentless/test-execution"],
+  ["test.runIf(false)", "relentless/test-execution"],
+  ['test["skipIf"](true)', "relentless/test-execution"],
 ])("rejects test execution shortcut %s", async (callee, rule) => {
   const results = await new ESLint({
     overrideConfig,
@@ -89,7 +99,7 @@ test.each([
     results.flatMap((result) =>
       result.messages.map((message) => message.ruleId),
     ),
-  ).toContain("no-restricted-syntax");
+  ).toContain("relentless/test-execution");
 });
 
 test("renaming an imported test cannot hide focus", async () => {
@@ -136,3 +146,68 @@ test("accepts ordinary tests, each tables and explicit non-weakening options", a
   );
   expect(results.flatMap((result) => result.messages)).toEqual([]);
 });
+
+test.each([
+  "export const domain = { retry: 3, repeats: 2, only: true, skip: true, todo: true, fails: true };",
+  "export const domain = { skipIf: () => 1, runIf: () => 2, fails: () => 3, only: () => 4 }; domain.skipIf(); domain.runIf(); domain.fails(); domain.only();",
+  'import type { TestCase } from "vitest/node"; export function failed(task: TestCase): boolean { return task.options.fails ?? false; }',
+  "export function flag(domain: Record<string, boolean>): boolean | undefined { return domain.skipIf; }",
+  'import { test, expect } from "vitest"; const domain = { retry: 3, skip: true }; test("domain flags", () => { expect(domain.retry).toBe(3); expect(domain.skip).toBe(true); });',
+  'import { test } from "vitest"; export const extended = test.extend<{ retry: number }>({ retry: 1 });',
+  "export function select(domain: { skipIf: () => number }): number { const { skipIf: choose } = domain; return choose(); }",
+  'export function invoke(domain: Record<"skipIf", () => number>): number { return domain.skipIf(); }',
+  "export function select(domain: Record<string, number>, key: string): number | undefined { const { [key]: value, ...rest } = domain; return value ?? rest.fallback; }",
+  'import { test } from "vitest"; export const extended = test.extend("domain", { retry: 1, 1: true });',
+  'import { test, expect } from "vitest"; const options = { retry: 0 }; test("case", { ...options }, () => { expect(1).toBe(1); });',
+])("accepts unrelated flags and metadata %s", async (source) => {
+  expect(await policyMessages(source)).toEqual([]);
+});
+
+test.each([
+  'import { test as check } from "vitest"; check.skipIf(false)("case", () => {});',
+  'import * as suite from "vitest"; suite.test.runIf(true)("case", () => {});',
+  'import { test } from "vitest"; const check = test; check.fails("case", () => {});',
+  'import { test } from "vitest"; test.skipIf(false).each([1])("case", () => {});',
+  'import { test } from "vitest"; test["skipIf"](false)("case", () => {});',
+  'import { test } from "vitest"; const key = "skipIf"; test[key](false)("case", () => {});',
+  'import { test } from "vitest"; const { skipIf: conditional } = test; conditional(false)("case", () => {});',
+  'import { test } from "vitest"; const { fails: inverted } = test; inverted("case", () => {});',
+  'import { test } from "vitest"; const key = "skipIf"; const { [key]: conditional } = test; conditional(false)("case", () => {});',
+  'import { test } from "vitest"; test.only("case", () => {});',
+  'import { test } from "vitest"; test.skip("case", () => {});',
+  'import { test } from "vitest"; test.todo("case");',
+  'import type { TestAPI } from "vitest"; export function declare(check: TestAPI): void { check.fails("case", () => {}); }',
+  'import { test } from "vitest"; test("case", { retry: 1 }, () => {});',
+  'import { test } from "vitest"; test("case", { repeats: 1 }, () => {});',
+  'import { test } from "vitest"; test.each([1])("case", { retry: 1 }, () => {});',
+  'import { defineConfig } from "vitest/config"; export default defineConfig({ test: { retry: 1 } });',
+])("rejects actual Vitest execution policy %s", async (source) => {
+  expect(await policyMessages(source)).toContain("relentless/test-execution");
+});
+
+test.each(["TODO", "FIXME", "XXX", "todo", "fixme", "xxx"])(
+  "accepts advisory source comment %s",
+  async (word) => {
+    expect(
+      await policyMessages(
+        `// ${word}: useful follow-up\nexport const value = 1;`,
+      ),
+    ).toEqual([]);
+  },
+);
+
+test.each([
+  [
+    '// eslint-disable-next-line no-console\nconsole.log("value");',
+    "no-console",
+  ],
+  [
+    '// @ts-ignore\nexport const value: number = "bad";',
+    "@typescript-eslint/ban-ts-comment",
+  ],
+])(
+  "comment suppression retains native enforcement %s",
+  async (source, rule) => {
+    expect(await policyMessages(source)).toContain(rule);
+  },
+);

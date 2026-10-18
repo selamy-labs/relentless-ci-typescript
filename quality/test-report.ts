@@ -45,7 +45,7 @@ export function verifyTestReport(
   value: unknown,
   expected: string[],
   root: string,
-): void {
+): number {
   const result = report.parse(value);
   verifyInventory(
     result.testResults.map((item) => item.name),
@@ -65,8 +65,13 @@ export function verifyTestReport(
   if (result.numTotalTestSuites !== result.numPassedTestSuites) {
     throw new Error("suite summary is incomplete");
   }
+  return count;
 }
 
-export function verifyTests(root: string, sources: string[]): void {
-  verifyTestReport(readJson(file(root)), testSources(root, sources), root);
+export function verifyTests(root: string, sources: string[]): number {
+  return verifyTestReport(
+    readJson(file(root)),
+    testSources(root, sources),
+    root,
+  );
 }

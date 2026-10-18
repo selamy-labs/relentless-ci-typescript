@@ -1,8 +1,15 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, expect, test } from "vitest";
+import type { InlineConfig } from "vitest/node";
 import {
   diagnosticsPath,
   verifyDiagnostics,
@@ -12,14 +19,18 @@ import { verifyTestReport } from "../quality/test-report.js";
 
 const roots: string[] = [];
 function nativeRun(body: string, ignore = false) {
-  const root = mkdtempSync(join(tmpdir(), "relentless-runtime-"));
+  return nativeProgram(
+    `import { test, expect } from 'vitest';\ntest('native case', async () => { ${body}; expect(1).toBe(1); });\n`,
+    { dangerouslyIgnoreUnhandledErrors: ignore },
+  );
+}
+
+function nativeProgram(source: string, options: InlineConfig = {}) {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), "relentless-runtime-")));
   roots.push(root);
   mkdirSync(join(root, "tests"));
   const fixture = join(root, "tests", "fixture.test.mjs");
-  writeFileSync(
-    fixture,
-    `import { test, expect } from 'vitest';\ntest('native case', async () => { ${body}; expect(1).toBe(1); });\n`,
-  );
+  writeFileSync(fixture, source);
   const config = {
     resolve: {
       alias: { vitest: resolve("node_modules/vitest/dist/index.js") },
@@ -29,11 +40,12 @@ function nativeRun(body: string, ignore = false) {
       setupFiles: [resolve("tests/runtime-setup.ts")],
       reporters: ["json", resolve("quality/diagnostics-reporter.ts")],
       outputFile: join(root, "tests.json"),
-      dangerouslyIgnoreUnhandledErrors: ignore,
+      dangerouslyIgnoreUnhandledErrors: false,
       allowOnly: false,
       passWithNoTests: false,
       retry: 0,
       maxWorkers: 1,
+      ...options,
     },
   };
   const configuration = join(root, "vitest.config.mjs");
@@ -64,11 +76,67 @@ afterEach(() => {
     rmSync(root, { recursive: true, force: true });
 });
 
+test.each([
+  [
+    "unused retry allowance",
+    'test("case", { retry: 1 }, () => { expect(1).toBe(1); });',
+    0,
+  ],
+  [
+    "repetitions",
+    'test("case", { repeats: 1 }, () => { expect(1).toBe(1); });',
+    0,
+  ],
+  [
+    "expected failure",
+    'test.fails("case", () => { throw new Error("expected"); });',
+    0,
+  ],
+  [
+    "inherited suite retry",
+    'describe("suite", { retry: 1 }, () => { test("case", () => { expect(1).toBe(1); }); });',
+    0,
+  ],
+  ["global retry", 'test("case", () => { expect(1).toBe(1); });', 1],
+  [
+    "overridden global retry",
+    'test("case", { retry: 0 }, () => { expect(1).toBe(1); });',
+    1,
+  ],
+])(
+  "native diagnostics reject %s despite green final results",
+  (_name, source, retry) => {
+    const { root, fixture, result } = nativeProgram(
+      `import { test, expect, describe } from 'vitest';\n${source}\n`,
+      { retry },
+    );
+    expect(result.status, result.stderr).toBe(0);
+    verifyTestReport(readJson(join(root, "tests.json")), [fixture], root);
+    expect(() => {
+      verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
+    }).toThrow();
+  },
+  30_000,
+);
+
+test("native retry history and attempt diagnostics independently reject fail-then-pass", () => {
+  const { root, fixture, result } = nativeProgram(
+    'import { test, expect } from "vitest"; let count = 0; test("case", { retry: 1 }, () => { expect(++count).toBe(2); });',
+  );
+  expect(result.status, result.stderr).toBe(0);
+  const report = readJson(join(root, "tests.json"));
+  expect(report).toMatchObject({ success: true, numFailedTests: 0 });
+  expect(() => verifyTestReport(report, [fixture], root)).toThrow();
+  expect(() => {
+    verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
+  }).toThrow();
+}, 30_000);
+
 test("native guarded tests generate independent clean diagnostic evidence", () => {
   const { root, fixture, result } = nativeRun("await Promise.resolve()");
   expect(result.status, result.stderr).toBe(0);
   verifyTestReport(readJson(join(root, "tests.json")), [fixture], root);
-  verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root);
+  verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
 });
 
 test.each([
@@ -83,7 +151,7 @@ test.each([
     expect(result.status, result.stderr).toBe(1);
     verifyTestReport(readJson(join(root, "tests.json")), [fixture], root);
     expect(() => {
-      verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root);
+      verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
     }).toThrow();
   },
 );
@@ -95,12 +163,12 @@ test("the independent receipt rejects the native zero-exit ignored-error bypass"
   );
   expect(result.status, result.stderr).toBe(0);
   verifyTestReport(readJson(join(root, "tests.json")), [fixture], root);
-  expect(readJson(diagnosticsPath(root))).toEqual({
+  expect(readJson(diagnosticsPath(root))).toMatchObject({
     reason: "passed",
     unhandledErrors: 1,
     files: [fixture],
   });
   expect(() => {
-    verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root);
+    verifyDiagnostics(readJson(diagnosticsPath(root)), [fixture], root, 1);
   }).toThrow();
 });

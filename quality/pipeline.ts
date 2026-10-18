@@ -23,8 +23,8 @@ export function verify(root: string): void {
   for (const arguments_ of checks) {
     runNpm(arguments_, root, timeout);
   }
-  verifyTests(root, sources);
-  verifyRuntimeDiagnostics(root, sources);
+  const count = verifyTests(root, sources);
+  verifyRuntimeDiagnostics(root, sources, count);
   verifyCoverage(root, sources);
   verifySecurity(root, timeout);
   runNpm(["run", "mutation"], root, timeout);
