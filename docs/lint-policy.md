@@ -17,7 +17,8 @@ are errors, including comments with a rationale. `@ts-check` remains allowed
 because it enables checking. This uses the native
 [ban-ts-comment rule](https://typescript-eslint.io/rules/ban-ts-comment/). No
 inline exception is currently approved. A future exception needs a narrow
-protected policy change plus the trusted maintainer approval mechanism.
+protected policy change with explicit rationale in a pull request; no
+approving review is currently required.
 
 Type-aware lint also requires every member of a discriminated union in a
 `switch`, even when a `default` arm is present. The protected

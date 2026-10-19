@@ -43,10 +43,10 @@ analysis receipts are retained for seven days. Daily runs repeat the same checks
 against main to detect newly disclosed dependency vulnerabilities.
 
 Native local probes establish scanner behavior and aggregate-state rejection.
-The source template's protected `main` requires the aggregate `Relentless CI
-gate`. That check alone does not establish source-bound maintainer rationale
-for gate weakening. The `CODEOWNERS` file assigns the whole repository,
-including `.github`, to the two current administrators. Code-owner review
-takes effect only after the file is on protected `main` and the native review
-setting is enabled and read back. A generated repository must configure and
-verify its own protection settings.
+The source template's protected `main` requires pull requests, the aggregate
+`Relentless CI gate` from the GitHub Actions App with strict and up-to-date
+settings, conversation resolution and administrator enforcement. The required
+approving review count is zero, so no code-owner or last-push approval is
+required to merge. The `CODEOWNERS` file assigns the whole repository,
+including `.github`, to the two current administrators. A generated repository
+must configure and verify its own protection settings.

@@ -4,9 +4,12 @@ A framework-neutral starting point for a small typed library and JSON CLI, with
 strict quality checks that also test their executable verifiers.
 
 The checked-in gates run locally and in the declared GitHub Actions matrix.
-Each generated repository must separately configure protected-branch checks and
-code-owner review before treating those results as enforced. See individual gate
-documents for precise scope and limitations.
+The protected source `main` currently requires pull requests, the strict,
+up-to-date `Relentless CI gate`, conversation resolution and administrator
+enforcement, with zero required approving reviews. Each generated repository
+must separately configure its own protected-branch checks before treating those
+results as enforced. See individual gate documents for precise scope and
+limitations.
 
 ## Run the full local verifier
 
@@ -84,8 +87,9 @@ library with your own application.
 Fix the underlying defect and rerun the full command. Do not shrink source
 scope, lower thresholds, add broad suppressions, ignore unsuccessful mutants or
 substitute a faster profile for required verification. Changes to policy need
-explicit rationale and approval from trusted maintainer/platform state. Each
-generated repository must configure and verify its own branch protection.
+explicit rationale in the pull request, and no approving review is currently
+required. Generated repositories must configure and verify their own branch
+protection.
 
 ## Adapt the starting point
 
