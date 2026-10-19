@@ -26,7 +26,8 @@ native clean and defect probes exercise both sides. External JSON still needs
 explicit validation before it can be narrowed to a union type. This static
 rule cannot establish that runtime input was validated correctly.
 
-Debugger statements, console logging and TODO/FIXME/XXX comments fail.
+Debugger statements and console logging fail. Ordinary TODO/FIXME/XXX comments
+are advisory and remain allowed; suppression directives are still rejected.
 Structured stdout/stderr writes at the JSON CLI boundary remain part of its
 required protocol. This baseline detects the named static patterns; it does not
 prove arbitrary application behavior is finished or ban every conceivable
@@ -47,15 +48,25 @@ tests are errors, as are imports from `node:test`. These use the native
 [Vitest lint rules](https://github.com/vitest-dev/eslint-plugin-vitest). Renamed
 imports and literal bracket access are covered by the native probes.
 
-Additional
-[ESLint AST restrictions](https://eslint.org/docs/latest/rules/no-restricted-syntax)
-reject `.fails`, `.skipIf` and `.runIf`, including literal bracket access. Test
-object properties named `retry` or `repeats` must have literal zero values;
-`only`, `skip`, `todo` and `fails` must have literal false values. The
-restrictions apply throughout test source, so moving an options object into a
-variable does not hide it. They conservatively reserve these property names in
-tests; a new fixture that needs conflicting fields requires a reviewed policy
-decision.
+The `relentless/test-execution` complement uses the TypeScript checker's public
+API to resolve Vitest declarations. It rejects actual focus, suppression,
+conditional and expected-failure modifiers through imports, namespace/constant
+aliases, destructuring and supported chains. Literal and constant bracket keys
+are covered. The rule applies to all enrolled TypeScript, including configuration.
+
+Direct options on native Vitest calls and nested Vitest-owned configuration
+must retain literal types zero for retries/repetitions and false for execution
+flags. Ordinary domain properties, fixture data and diagnostic metadata remain
+allowed. The checker distinguishes declaration ownership and callable API
+members; it does not reserve matching field names throughout a test file.
+The same ownership check applies at every nested object, including rejection of
+`typecheck.only: true`, which disables runtime tests.
+
+Static matching does not trace arbitrary option variables, spreads, dynamic
+keys or type-assertion wrappers. Independent native runtime diagnostics require
+zero effective retries,
+repetitions and actual attempt counts, with ordinary run mode and no expected
+failures. Root retry configuration is checked even when a test overrides it.
 
 Ordinary tests, parameterized tables and explicit non-weakening options pass.
 Execution uses `allowOnly: false`, zero global retries and a required receipt

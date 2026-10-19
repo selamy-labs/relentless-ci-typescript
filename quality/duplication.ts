@@ -12,7 +12,7 @@ import {
   verifyDuplicationReport,
   type EligibleSource,
 } from "./duplication-report.js";
-import { readJson } from "./security.js";
+import { readJson } from "./json-file.js";
 
 function tool(root: string, args: string[]): string {
   const bytes = execFileSync(

@@ -30,7 +30,9 @@ The supported discovery convention is `tests/**/*.test.ts`. Test-like files
 using other names are outside that convention and require an explicit scope
 change before they can be credited. The native ESLint probes
 reject focused, skipped, alternate Node imports and weakening retry options.
-They first assert a clean analyzer setup before the negative cases. A separate
+Clean analyzer controls are ordinary tests, so their failures remain individual
+test failures during mutation analysis instead of blocking cases in a setup hook.
+A separate
 behavioral witness passes the imported configuration to native ESLint and
 requires its test plugin to reject a focused case. This catches missing plugin
 registration and an incorrect test-file scope during full mutation.
@@ -51,12 +53,22 @@ captured by Vitest. The configured `dangerouslyIgnoreUnhandledErrors` is false.
 
 Vitest 5.0.2's JSON reporter can still report successful tests after an unhandled
 error. The native `onTestRunEnd` reporter independently records the reason, actual
-unhandled error count and module paths. The verifier requires reason `passed`,
-zero errors and the exact canonical enrolled file inventory. Initialization and
+unhandled error count, module paths and every public TestCase's effective options
+and diagnostic attempt counts. The verifier requires reason `passed`, zero errors,
+the exact canonical enrolled file inventory and unique case IDs whose count
+matches the independently checked JSON completed-test count. Every case must
+have ordinary run mode, zero retries/repetitions and actual attempt counts, and
+no expected-failure flag. Root configuration must retain zero retries and disallow
+focus. Missing native attempt evidence cannot default to zero. Initialization and
 full-verifier preparation both delete stale diagnostic evidence. Missing,
 malformed, duplicate, incomplete and error-bearing receipts fail. Native probes
 also deliberately set the ignore option true: even though exit status and JSON
 success then pass, the independent diagnostic receipt rejects the bypass.
+
+Further native probes reject unused retry allowances, suite-inherited retries,
+repetitions, expected failures and nonzero root retries overridden by a test.
+A fail-then-pass probe is rejected by both JSON failure history and independent
+attempt diagnostics. Final runner success alone is insufficient.
 
 This detects warnings and errors observed during the test lifecycle. General
 resource-leak analysis is outside this gate; installed-consumer and full hosted

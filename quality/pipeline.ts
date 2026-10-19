@@ -2,7 +2,8 @@ import { join } from "node:path";
 import { z } from "zod";
 import { runNpm } from "./commands.js";
 import { prepareCoverage, verifyCoverage } from "./coverage-report.js";
-import { readJson, verifySecurity } from "./security.js";
+import { readJson } from "./json-file.js";
+import { verifySecurity } from "./security.js";
 import { prepareTests, verifyTests } from "./test-report.js";
 import { verifyRuntimeDiagnostics } from "./runtime-diagnostics.js";
 import { verifySources, verifyTracked } from "./source-scope.js";
@@ -22,8 +23,8 @@ export function verify(root: string): void {
   for (const arguments_ of checks) {
     runNpm(arguments_, root, timeout);
   }
-  verifyTests(root, sources);
-  verifyRuntimeDiagnostics(root, sources);
+  const count = verifyTests(root, sources);
+  verifyRuntimeDiagnostics(root, sources, count);
   verifyCoverage(root, sources);
   verifySecurity(root, timeout);
   runNpm(["run", "mutation"], root, timeout);

@@ -1,10 +1,10 @@
 import { resolve } from "node:path";
 import { ESLint } from "eslint";
-import { beforeAll, expect, test } from "vitest";
+import { expect, test } from "vitest";
 
 const sourceFile = resolve("src/validation.ts");
 
-beforeAll(async () => {
+test("native analyzer accepts ordinary source", async () => {
   const results = await new ESLint().lintText("export const safe = 1;", {
     filePath: sourceFile,
   });
@@ -44,18 +44,14 @@ test.each([
   ).toBe(true);
 });
 
-test.each(["TODO", "FIXME", "XXX"])(
-  "rejects incomplete-work marker %s",
+test.each(["TODO", "FIXME", "XXX", "todo", "fixme", "xxx"])(
+  "accepts advisory source comment %s",
   async (marker) => {
     const results = await new ESLint().lintText(
-      `// ${marker}: unfinished behavior\nexport const safe = 1;`,
+      `// ${marker}: useful follow-up\nexport const safe = 1;`,
       { filePath: sourceFile },
     );
-    expect(
-      results.flatMap((result) =>
-        result.messages.map((message) => message.ruleId),
-      ),
-    ).toContain("no-warning-comments");
+    expect(results.flatMap((result) => result.messages)).toEqual([]);
   },
 );
 

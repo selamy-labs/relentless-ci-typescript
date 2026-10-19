@@ -1,7 +1,8 @@
-import { readFileSync, mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { z } from "zod";
 import { run } from "./commands.js";
+import { readJson } from "./json-file.js";
 import { verifyAudit, verifySast, verifySecrets } from "./security-reports.js";
 import { verifySources } from "./source-scope.js";
 
@@ -20,12 +21,6 @@ const schema = z.object({
   sast: argumentsSchema,
 });
 type Policy = z.infer<typeof schema>;
-
-export function readJson(path: string): unknown {
-  return JSON.parse(
-    new TextDecoder("utf-8", { fatal: true }).decode(readFileSync(path)),
-  );
-}
 
 function tool(
   args: string[],
