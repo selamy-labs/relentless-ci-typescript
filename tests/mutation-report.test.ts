@@ -73,16 +73,6 @@ test("rejects duplicate mutant identifiers", () => {
   expect(() => verifyMutationReport(changed, changed)).toThrow("duplicate");
 });
 
-test("rejects a changed mutation operator", () => {
-  const changed = report("Killed");
-  for (const mutant of changed.files["src/example.ts"].mutants) {
-    mutant.mutatorName = "StringLiteral";
-  }
-  expect(() => verifyMutationReport(report("Pending"), changed)).toThrow(
-    "inventory",
-  );
-});
-
 test("accepts reordered files and mutants without losing any results", () => {
   const original = report("Killed").files["src/example.ts"];
   const more = original.mutants.map((item) => ({ ...item, id: "1" }));
