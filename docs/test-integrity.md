@@ -1,5 +1,36 @@
 # Test discovery and completed results
 
+## Assertion requirement
+
+Every authored `test` or `it` callback must contain a terminal assertion that is
+reachable from that test. The assertion may be in the callback itself or in an
+assertion helper that the callback calls. The checker follows typed symbols
+through import aliases and local helper calls; a matching name with an unrelated
+symbol does not count.
+
+The gate recognizes exactly these terminal forms:
+
+- a matcher call on `expect(value)`, including promise modifiers such as
+  `resolves` and `rejects`;
+- `expect.assertions(count)` and `expect.hasAssertions()`;
+- the default callable assertion and named assertion functions exported by
+  `node:assert` or `node:assert/strict`, including their imported aliases and
+  methods reached through an imported namespace or default binding; and
+- `fc.assert(property)` from `fast-check`, including aliased namespace imports
+  and an aliased `assert` import, when the property's predicate contains a
+  recognized terminal assertion.
+
+A local helper counts only when the test reaches it by a call and its
+implementation contains one of those forms. Merely constructing a function that
+contains an assertion does not count. An assertion inside a `catch` block that
+can complete without rethrowing the caught failure is swallowed and does not
+count, whether it appears directly, in a helper or in a property predicate.
+`fc.assert` with an assertion-free property therefore does not count.
+
+There are no exemptions, annotations, allowlists or assertion-free test modes.
+Add an assertion of the behavior under test, or remove a test that has no
+behavioral claim.
+
 The full verifier removes the previous test receipt before running its check
 registry. The coverage command retains all configured reporters: default, JSON
 and the owned runtime diagnostics reporter. It writes fresh
@@ -36,9 +67,8 @@ A separate
 behavioral witness passes the imported configuration to native ESLint and
 requires its test plugin to reject a focused case. This catches missing plugin
 registration and an incorrect test-file scope during full mutation.
-This gate validates runner results; it does
-not establish that every behavior has a meaningful assertion. Property, coverage
-and mutation gates provide separate evidence for that requirement.
+The assertion requirement complements these runner-result checks; coverage and
+mutation remain separate evidence for the strength of the asserted behavior.
 
 Remediation is to restore the missing suite, remove focus/skip/todo markers,
 repair failures or fix the reporter configuration. Do not reduce discovery scope
