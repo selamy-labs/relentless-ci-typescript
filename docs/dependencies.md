@@ -33,8 +33,10 @@ The only current install-script declaration is `fsevents@2.3.3`. Its exact
 version and artifact hash are recorded in the policy. Changed or new script
 declarations fail. This review does not execute the script: `.npmrc` and the
 full installation command disable dependency scripts. Source changes to the
-policy, registry configuration or bootstrap need the same trusted approval as
-other quality policy. The App-owned issuer checks protected policy changes.
+policy, registry configuration or bootstrap need the same explicit rationale
+in a pull request as other quality policy; no approving review is currently
+required. The App-owned trusted-policy issuer remains present, but its check
+is not currently a required status check.
 
 On success, the bootstrap replaces `.quality-results/component-inventory.json`
 with every locked package path, version, declared license, URL, hash and

@@ -17,7 +17,8 @@ are errors, including comments with a rationale. `@ts-check` remains allowed
 because it enables checking. This uses the native
 [ban-ts-comment rule](https://typescript-eslint.io/rules/ban-ts-comment/). No
 inline exception is currently approved. A future exception needs a narrow
-protected policy change plus the trusted maintainer approval mechanism.
+protected policy change with explicit rationale in a pull request; no
+approving review is currently required.
 
 Type-aware lint also requires every member of a discriminated union in a
 `switch`, even when a `default` arm is present. The protected
@@ -37,8 +38,9 @@ Native API and CLI probes cover clean code, each suppression, disable
 directives, ordinary comments, checking enablement and incomplete/debug
 patterns. String literals used by those negative probes are parsed as strings
 rather than actual directives, and do not require a source exclusion. The full
-hosted analysis matrix runs these rules; the App-owned issuer guards policy
-changes in the source repository.
+hosted analysis matrix runs these rules; the App-owned trusted-policy issuer
+remains present in the source repository, but its check is not currently a
+required status check.
 
 ## Test execution policy
 

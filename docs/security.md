@@ -25,8 +25,9 @@ vulnerability inventory.
 
 Scanner arguments live in `quality/security-commands.json`. This is protected
 policy data, alongside rules, tool versions, suppressions and check definitions.
-It must receive the same trusted maintainer review as a workflow change. Moving
-arguments to JSON does not authorize weakening them.
+It changes through the same required pull-request and `Relentless CI gate`
+protections as a workflow change; no approving review is currently required.
+Moving arguments to JSON does not authorize weakening them.
 
 Before scanning, all four `.quality-results` security reports are removed. New
 missing, malformed or invalid-UTF8 output fails. Gitleaks checks the working
