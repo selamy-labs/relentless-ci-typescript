@@ -277,8 +277,11 @@ const testAssertion = {
       ) {
         return true;
       }
-      if (declaredIn(symbol?.declarations, "/node_modules/fast-check/")) {
-        return symbol?.name === "assert" && property(call.arguments[0]);
+      if (
+        symbol?.name === "assert" &&
+        declaredIn(symbol.declarations, "/node_modules/fast-check/")
+      ) {
+        return property(call.arguments[0]);
       }
       return reaches(call.expression);
     }
@@ -312,7 +315,7 @@ const testAssertion = {
 
     /** @param {ts.Node} node */
     function children(node) {
-      return ts.forEachChild(node, visit) ?? false;
+      return ts.forEachChild(node, visit) === true;
     }
 
     /** @param {ts.SignatureDeclaration} declaration */
@@ -330,12 +333,7 @@ const testAssertion = {
       const value = ts.isVariableDeclaration(declaration)
         ? declaration.initializer
         : declaration;
-      return (
-        value !== undefined &&
-        ts.isFunctionLike(value) &&
-        !declaration.getSourceFile().isDeclarationFile &&
-        body(value)
-      );
+      return ts.isFunctionLike(value) && body(value);
     }
 
     /** @param {ts.Expression} node @returns {boolean} */
@@ -343,7 +341,7 @@ const testAssertion = {
       if (ts.isFunctionLike(node)) {
         return body(node);
       }
-      return (target(node)?.declarations ?? []).some(local);
+      return target(node)?.declarations?.some(local) === true;
     }
 
     /** @param {ts.Expression} node */

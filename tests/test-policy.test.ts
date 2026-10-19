@@ -1,11 +1,8 @@
 import { resolve } from "node:path";
 import { ESLint, type Linter } from "eslint";
 import { expect, test } from "vitest";
-import eslintConfig from "../eslint.config.mjs";
+import { lintPolicy, overrideConfig } from "./policy-lint.js";
 
-// JSON import types widen rule severity strings. ESLint validates this native
-// config at lint time; the assertion only bridges its public configuration type.
-const overrideConfig = eslintConfig as Linter.Config[];
 const filePath = resolve("tests/test-policy.test.ts");
 const imports = 'import { test, describe, expect } from "vitest";\n';
 const body = '"example", () => { expect(1).toBe(1); }';
@@ -13,11 +10,7 @@ const body = '"example", () => { expect(1).toBe(1); }';
 async function policyDiagnostics(
   source: string,
 ): Promise<Linter.LintMessage[]> {
-  const results = await new ESLint({
-    overrideConfig,
-    overrideConfigFile: true,
-  }).lintText(source, { filePath });
-  return results.flatMap((result) => result.messages);
+  return lintPolicy(source, filePath);
 }
 
 async function policyMessages(source: string): Promise<string[]> {

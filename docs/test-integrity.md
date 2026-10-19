@@ -35,6 +35,9 @@ The typed `relentless/test-assertion` ESLint rule enforces this for
 reaches Vitest's `TestAPI` type, such as `test`, `it`, an imported alias,
 `test.each(table)` or an extended test, and the call has a callable argument.
 Suite callbacks such as `describe.each` are not test declarations.
+Behavioral witnesses pass source through native ESLint with the imported
+configuration and require each recognized form to pass and each assertion-free,
+swallowed, impostor or uncalled form to fail.
 
 There are no exemptions, annotations, allowlists or assertion-free test modes.
 Add an assertion of the behavior under test, or remove a test that has no
