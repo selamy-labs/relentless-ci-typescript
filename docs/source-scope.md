@@ -26,7 +26,7 @@ artifacts from protected inputs. The verifier removes stale reports before
 checking fresh native coverage, test, security and mutation results.
 
 This gate is part of the shared full local verifier and every hosted analysis
-job. Protected policy changes require the separate App-owned issuer check.
+job. Protected policy changes require trusted maintainer review.
 
 Executable tool adapters, including `quality/vitest-config.ts`, are
 enrolled in V8 coverage and Stryker mutation as well as size, typing, lint,

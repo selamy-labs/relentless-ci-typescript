@@ -34,7 +34,7 @@ version and artifact hash are recorded in the policy. Changed or new script
 declarations fail. This review does not execute the script: `.npmrc` and the
 full installation command disable dependency scripts. Source changes to the
 policy, registry configuration or bootstrap need the same trusted approval as
-other quality policy. The App-owned issuer checks protected policy changes.
+other quality policy.
 
 On success, the bootstrap replaces `.quality-results/component-inventory.json`
 with every locked package path, version, declared license, URL, hash and

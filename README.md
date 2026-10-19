@@ -4,9 +4,9 @@ A framework-neutral starting point for a small typed library and JSON CLI, with
 strict quality checks that also test their executable verifiers.
 
 The checked-in gates run locally and in the declared GitHub Actions matrix.
-Each generated repository must separately configure protected-branch checks,
-code-owner review and a trusted policy issuer before treating those results as
-enforced. See individual gate documents for precise scope and limitations.
+Each generated repository must separately configure protected-branch checks and
+code-owner review before treating those results as enforced. See individual gate
+documents for precise scope and limitations.
 
 ## Run the full local verifier
 
@@ -84,9 +84,8 @@ library with your own application.
 Fix the underlying defect and rerun the full command. Do not shrink source
 scope, lower thresholds, add broad suppressions, ignore unsuccessful mutants or
 substitute a faster profile for required verification. Changes to policy need
-explicit rationale and approval from trusted maintainer/platform state. The
-source repository's protected policy issuer must publish the dedicated App check;
-generated copies must configure and verify their own App and branch protection.
+explicit rationale and approval from trusted maintainer/platform state. Each
+generated repository must configure and verify its own branch protection.
 
 ## Adapt the starting point
 

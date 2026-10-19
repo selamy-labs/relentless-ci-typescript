@@ -17,8 +17,8 @@ fail. The complete local verifier and installed-behavior jobs call this check.
 The snapshot is checked locally without accounts or live network access. Its
 recorded upstream URL identifies an immutable commit. Maintainers must verify the
 upstream data when renewing the review or changing dates; the local schema alone
-does not prove an edited date came from upstream. Protected policy review and
-the App-owned issuer check guard changes to this snapshot.
+does not prove an edited date came from upstream. Protected policy review
+guards changes to this snapshot.
 
 | Node.js | End of life | Full analysis | Installed behavior    |
 | ------- | ----------- | ------------- | --------------------- |
