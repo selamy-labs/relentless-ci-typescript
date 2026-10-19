@@ -275,7 +275,9 @@ test("entry observes the UTC day even when local offset crosses midnight", async
   vi.spyOn(process, "cwd").mockReturnValue(f.root);
   try {
     vi.resetModules();
-    await import("../quality/runtime-support-main.js");
+    await expect(
+      import("../quality/runtime-support-main.js"),
+    ).resolves.toBeDefined();
   } finally {
     vi.restoreAllMocks();
     vi.useRealTimers();

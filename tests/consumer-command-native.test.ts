@@ -97,16 +97,18 @@ test("native installed-consumer guard permits an owned write", () => {
 });
 
 test("native Node preserves stdin, stdout, stderr and the expected nonzero CLI status", () => {
-  consumerNode(
-    [
-      "-e",
-      "process.stdout.write(require('node:fs').readFileSync(0));process.stderr.write('expected error');process.exitCode=2;",
-    ],
-    process.cwd(),
-    5000,
-    "input with spaces\n",
-    { status: 2, stdout: "input with spaces\n", stderr: "expected error" },
-  );
+  expect(() => {
+    consumerNode(
+      [
+        "-e",
+        "process.stdout.write(require('node:fs').readFileSync(0));process.stderr.write('expected error');process.exitCode=2;",
+      ],
+      process.cwd(),
+      5000,
+      "input with spaces\n",
+      { status: 2, stdout: "input with spaces\n", stderr: "expected error" },
+    );
+  }).not.toThrow();
 });
 
 test("native timeout and a wrong status cannot count as successful consumer checks", () => {

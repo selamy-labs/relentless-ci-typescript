@@ -22,10 +22,19 @@ The gate recognizes exactly these terminal forms:
 
 A local helper counts only when the test reaches it by a call and its
 implementation contains one of those forms. Merely constructing a function that
-contains an assertion does not count. An assertion inside a `catch` block that
-can complete without rethrowing the caught failure is swallowed and does not
-count, whether it appears directly, in a helper or in a property predicate.
-`fc.assert` with an assertion-free property therefore does not count.
+contains an assertion does not count, including a callback handed to another
+helper; call the assertion directly or through a helper instead. A `catch`
+block swallows failures unless its final statement is `throw`. Assertions in a
+swallowing `catch` block or in the `try` block it guards do not count, whether
+they appear directly, in a helper or in a property predicate; a `finally` block
+still counts. `fc.assert` with an assertion-free property therefore does not
+count.
+
+The typed `relentless/test-assertion` ESLint rule enforces this for
+`tests/**/*.ts`. It treats a call as a test declaration when its callee chain
+reaches Vitest's `TestAPI` type, such as `test`, `it`, an imported alias,
+`test.each(table)` or an extended test, and the call has a callable argument.
+Suite callbacks such as `describe.each` are not test declarations.
 
 There are no exemptions, annotations, allowlists or assertion-free test modes.
 Add an assertion of the behavior under test, or remove a test that has no

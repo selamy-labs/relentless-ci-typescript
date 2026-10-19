@@ -29,7 +29,9 @@ afterEach(() => {
     rmSync(root, { recursive: true, force: true });
 });
 test("validates public import/type targets and CLI registration", () => {
-  verifyConsumerMetadata(fixture(), "sample");
+  expect(() => {
+    verifyConsumerMetadata(fixture(), "sample");
+  }).not.toThrow();
 });
 test.each([
   null,

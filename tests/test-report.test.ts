@@ -69,10 +69,14 @@ function complete() {
 test("complete receipts accept reordered paths and nested suite summaries", () => {
   const data = complete();
   data.testResults.reverse();
-  verifyTestReport(data, expected, root());
+  expect(() => {
+    verifyTestReport(data, expected, root());
+  }).not.toThrow();
   data.numTotalTestSuites = 3;
   data.numPassedTestSuites = 3;
-  verifyTestReport(data, expected, root());
+  expect(() => {
+    verifyTestReport(data, expected, root());
+  }).not.toThrow();
 });
 
 test.each([
@@ -242,7 +246,9 @@ test("multiple completed cases in a suite are valid", () => {
   });
   data.numTotalTests = 3;
   data.numPassedTests = 3;
-  verifyTestReport(data, expected, root());
+  expect(() => {
+    verifyTestReport(data, expected, root());
+  }).not.toThrow();
 });
 
 test("diagnostics identify inventory and summary failures", () => {
