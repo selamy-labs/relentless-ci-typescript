@@ -80,6 +80,15 @@ This limits parallelism without changing discovery, test deadlines or retries.
 
 The test probes pass the imported executable config directly to ESLint, so
 mutation tests exercise that same config rather than a separately loaded copy.
-One test-side `Linter.Config[]` assertion bridges JSON import types that widen
-rule severity strings. Native ESLint validates the configuration when linting;
-the assertion does not suppress product errors or bypass a rule.
+One test-side `Linter.Config[]` assertion bridges inferred config types that
+widen rule severity strings. Native ESLint validates the configuration when
+linting; the assertion does not suppress product errors or bypass a rule.
+
+The config reads `quality/eslint-policy.json` through `createRequire` rather
+than an import attribute, because the pinned Opengrep JavaScript parser rejects
+import attributes and strict static security fails on partial parses.
+
+Probes of configuration discovery run the ESLint CLI in a child process. An
+in-process `new ESLint()` imports `eslint.config.mjs` natively, and the V8
+coverage provider remaps that script against Vitest's transform of the same
+path, producing corrupt branch counts that depend on source positions.

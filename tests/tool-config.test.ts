@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { ESLint, type Linter } from "eslint";
 import { expect, test } from "vitest";
+import { nativeLint } from "./native-lint.js";
 import eslintConfig from "../eslint.config.mjs";
 import vitestConfig from "../quality/vitest-config.js";
 import checks from "../quality/checks.json" with { type: "json" };
@@ -59,28 +60,28 @@ test("native test configuration enrolls all authored executable roots", () => {
   });
 });
 
-test("native ESLint configuration enforces strict semantic rules", async () => {
+test("native ESLint configuration enforces strict semantic rules", () => {
   expect(Array.isArray(eslintConfig)).toBe(true);
-  const result = await new ESLint().lintText(
+  const result = nativeLint(
     "export function unsafe(value: any): any { return value; }",
-    { filePath: sourceFile },
+    sourceFile,
   );
   expect(rules(result)).toContain("@typescript-eslint/no-explicit-any");
 }, 30_000);
 
-test("native ESLint requires every union switch case", async () => {
+test("native ESLint requires every union switch case", () => {
   const prefix =
     'type Kind = "a" | "b"; export function kind(value: Kind): number { switch (value) {';
-  const missing = await new ESLint().lintText(
+  const missing = nativeLint(
     `${prefix} case "a": return 1; default: return 0; } }`,
-    { filePath: sourceFile },
+    sourceFile,
   );
   expect(rules(missing)).toContain(
     "@typescript-eslint/switch-exhaustiveness-check",
   );
-  const complete = await new ESLint().lintText(
+  const complete = nativeLint(
     `${prefix} case "a": return 1; case "b": return 2; } }`,
-    { filePath: sourceFile },
+    sourceFile,
   );
   expect(rules(complete)).not.toContain(
     "@typescript-eslint/switch-exhaustiveness-check",
@@ -99,35 +100,44 @@ test("native imported configuration enrolls the focused-test plugin", async () =
   expect(rules(results)).toContain("vitest/no-focused-tests");
 });
 
-test.each([399, 400])("counts %s physical comment lines", async (count) => {
-  const result = await new ESLint().lintText("// comment\n".repeat(count), {
-    filePath: sourceFile,
-  });
-  expect(rules(result).includes("max-lines")).toBe(count > 399);
-});
+test.each([399, 400])(
+  "counts %s physical comment lines",
+  (count) => {
+    const result = nativeLint("// comment\n".repeat(count), sourceFile);
+    expect(rules(result).includes("max-lines")).toBe(count > 399);
+  },
+  30_000,
+);
 
-test.each([5, 6])("cognitive complexity boundary %s", async (count) => {
-  const result = await new ESLint().lintText(branching(count), {
-    filePath: sourceFile,
-  });
-  expect(rules(result).includes("sonarjs/cognitive-complexity")).toBe(
-    count > 5,
+test.each([5, 6])(
+  "cognitive complexity boundary %s",
+  (count) => {
+    const result = nativeLint(branching(count), sourceFile);
+    expect(rules(result).includes("sonarjs/cognitive-complexity")).toBe(
+      count > 5,
+    );
+  },
+  30_000,
+);
+
+test.each([9, 10])(
+  "cyclomatic complexity boundary %s",
+  (branches) => {
+    const result = nativeLint(
+      branching(branches),
+      sourceFile,
+      "--rule",
+      '{"sonarjs/cognitive-complexity":"off"}',
+    );
+    expect(rules(result).includes("complexity")).toBe(branches > 9);
+  },
+  30_000,
+);
+
+test("JavaScript executable configuration retains structural rules", () => {
+  const result = nativeLint(
+    "// comment\n".repeat(400),
+    resolve("eslint.config.mjs"),
   );
-});
-
-test.each([9, 10])("cyclomatic complexity boundary %s", async (branches) => {
-  const linter = new ESLint({
-    overrideConfig: [{ rules: { "sonarjs/cognitive-complexity": "off" } }],
-  });
-  const result = await linter.lintText(branching(branches), {
-    filePath: sourceFile,
-  });
-  expect(rules(result).includes("complexity")).toBe(branches > 9);
-});
-
-test("JavaScript executable configuration retains structural rules", async () => {
-  const result = await new ESLint().lintText("// comment\n".repeat(400), {
-    filePath: resolve("eslint.config.mjs"),
-  });
   expect(rules(result)).toContain("max-lines");
-});
+}, 30_000);

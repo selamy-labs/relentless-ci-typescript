@@ -3,9 +3,12 @@ import tseslint from "typescript-eslint";
 import sonarjs from "eslint-plugin-sonarjs";
 import vitest from "@vitest/eslint-plugin";
 import { ESLintUtils } from "@typescript-eslint/utils";
+import { createRequire } from "node:module";
 import { sep } from "node:path";
 import ts from "typescript";
-import policy from "./quality/eslint-policy.json" with { type: "json" };
+
+/** @type {import("eslint").Linter.Config[]} */
+const policy = createRequire(import.meta.url)("./quality/eslint-policy.json");
 
 /** @typedef {import("typescript").Declaration} Declaration */
 /** @typedef {import("@typescript-eslint/utils").TSESTree.ObjectExpression} ObjectExpression */
