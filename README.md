@@ -6,11 +6,10 @@ strict quality checks that also test their executable verifiers.
 The checked-in gates run locally and in the declared GitHub Actions matrix.
 The protected source `main` currently requires pull requests, the strict,
 up-to-date `Relentless CI gate`, conversation resolution and administrator
-enforcement, with zero required approving reviews. The trusted policy issuer
-workflow is still present, but its check is not currently a required status
-check. Each generated repository must separately configure its own
-protected-branch checks before treating those results as
-enforced. See individual gate documents for precise scope and limitations.
+enforcement, with zero required approving reviews. Each generated repository
+must separately configure its own protected-branch checks before treating those
+results as enforced. See individual gate documents for precise scope and
+limitations.
 
 ## Run the full local verifier
 
@@ -88,10 +87,9 @@ library with your own application.
 Fix the underlying defect and rerun the full command. Do not shrink source
 scope, lower thresholds, add broad suppressions, ignore unsuccessful mutants or
 substitute a faster profile for required verification. Changes to policy need
-explicit rationale in the pull request. The source repository's protected
-policy issuer still publishes the dedicated App check, but that check is not
-currently required to merge; generated copies must configure and verify their
-own App and branch protection.
+explicit rationale in the pull request, and no approving review is currently
+required. Generated repositories must configure and verify their own branch
+protection.
 
 ## Adapt the starting point
 

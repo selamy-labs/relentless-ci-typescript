@@ -8,8 +8,7 @@ Every update pull request must run the same complete verifier, including full
 mutation, vulnerability scanning and dependency policy checks. An update cannot
 approve its own license, install script, analyzer suppression or policy change.
 Those changes merge through the required pull-request and `Relentless CI gate`
-protections; no approving review is currently required, and the trusted-policy
-check is not a required status check.
+protections; no approving review is currently required.
 Dependency age alone is advisory; every known vulnerability still fails the scan.
 
 GitHub Actions remain pinned to commit hashes with release comments. Dependabot

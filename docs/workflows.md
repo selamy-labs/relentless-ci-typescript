@@ -47,9 +47,6 @@ The source template's protected `main` requires pull requests, the aggregate
 `Relentless CI gate` from the GitHub Actions App with strict and up-to-date
 settings, conversation resolution and administrator enforcement. The required
 approving review count is zero, so no code-owner or last-push approval is
-required to merge. The trusted policy issuer workflow and its live bypass
-probes remain checked in, but the `Relentless trusted policy` check is not
-currently a required status check. The `CODEOWNERS` file
-assigns the whole repository, including `.github`, to the two current
-administrators. A generated repository must configure and verify its own
-protection settings.
+required to merge. The `CODEOWNERS` file assigns the whole repository,
+including `.github`, to the two current administrators. A generated repository
+must configure and verify its own protection settings.

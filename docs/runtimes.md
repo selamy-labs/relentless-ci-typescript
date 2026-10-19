@@ -19,8 +19,7 @@ recorded upstream URL identifies an immutable commit. Maintainers must verify th
 upstream data when renewing the review or changing dates; the local schema alone
 does not prove an edited date came from upstream. Protected changes to this
 snapshot pass through the required pull-request and `Relentless CI gate`
-protections; no approving review is currently required, and the App-owned
-trusted-policy issuer check is not a required status check.
+protections; no approving review is currently required.
 
 | Node.js | End of life | Full analysis | Installed behavior    |
 | ------- | ----------- | ------------- | --------------------- |

@@ -38,9 +38,7 @@ Native API and CLI probes cover clean code, each suppression, disable
 directives, ordinary comments, checking enablement and incomplete/debug
 patterns. String literals used by those negative probes are parsed as strings
 rather than actual directives, and do not require a source exclusion. The full
-hosted analysis matrix runs these rules; the App-owned trusted-policy issuer
-remains present in the source repository, but its check is not currently a
-required status check.
+hosted analysis matrix runs these rules.
 
 ## Test execution policy
 
