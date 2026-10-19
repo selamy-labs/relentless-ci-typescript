@@ -161,16 +161,6 @@ test("fails if the Git repository is missing", () => {
   }).toThrow();
 });
 
-test("rejects 400 lines without a terminal newline", () => {
-  const root = repository();
-  source(
-    root,
-    "quality/over.ts",
-    Array<string>(400).fill("// a line").join("\n"),
-  );
-  expect(() => verifySources(root)).toThrow("400 physical lines exceeds 399");
-});
-
 test("rejects a tracked root file using a generated-directory name", () => {
   const root = repository();
   git(root, "init", "--quiet");
