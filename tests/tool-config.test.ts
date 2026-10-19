@@ -98,6 +98,16 @@ test("native imported configuration enrolls the focused-test plugin", async () =
     { filePath: resolve("tests/tool-config.test.ts") },
   );
   expect(rules(results)).toContain("vitest/no-focused-tests");
+}, 30_000);
+
+test("imported configuration lints JavaScript without type information", async () => {
+  const results = await new ESLint({
+    overrideConfig: eslintConfig as Linter.Config[],
+    overrideConfigFile: true,
+  }).lintText("export const value = 1;\n", {
+    filePath: resolve("eslint.config.mjs"),
+  });
+  expect(results.flatMap((result) => result.messages)).toEqual([]);
 });
 
 test.each([399, 400])(

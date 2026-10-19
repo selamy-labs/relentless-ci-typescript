@@ -92,3 +92,7 @@ Probes of configuration discovery run the ESLint CLI in a child process. An
 in-process `new ESLint()` imports `eslint.config.mjs` natively, and the V8
 coverage provider remaps that script against Vitest's transform of the same
 path, producing corrupt branch counts that depend on source positions.
+Child processes do not observe active mutants, so in-process witnesses import
+the executable config inside a test body, require it to contain the protected
+policy and lint JavaScript without type information. Mutation tools do not
+credit a suite that fails while importing, so the import must fail in a test.

@@ -1,8 +1,14 @@
 import { resolve } from "node:path";
 import { expect, test } from "vitest";
+import policy from "../quality/eslint-policy.json" with { type: "json" };
 import { nativeLint } from "./native-lint.js";
 
 const sourceFile = resolve("src/validation.ts");
+
+test("executable configuration loads the protected policy", async () => {
+  const { default: config } = await import("../eslint.config.mjs");
+  expect(config).toEqual(expect.arrayContaining(policy));
+});
 
 test("native analyzer accepts ordinary source", () => {
   const results = nativeLint("export const safe = 1;", sourceFile);
