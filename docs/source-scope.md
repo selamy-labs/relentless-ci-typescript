@@ -2,10 +2,11 @@
 
 `npm run scope` discovers source independently of Git ignore rules. All authored
 TypeScript must live in `src`, `tests`, or `quality`. The executable root
-adapters `eslint.config.mjs`, `dependency-policy.mjs` and `dependency-main.mjs`
-are explicitly enrolled. Other JavaScript/TypeScript extensions and new root
-configurations fail until their typing, lint, coverage and mutation scope is
-enrolled through reviewed policy changes.
+adapters `eslint.config.mjs`, its `test-assertion.mjs` rule module,
+`dependency-policy.mjs` and `dependency-main.mjs` are explicitly enrolled.
+Other JavaScript/TypeScript extensions and new root configurations fail until
+their typing, lint, coverage and mutation scope is enrolled through reviewed
+policy changes.
 
 Every enrolled file has at most 399 physical lines, including comments and blank
 lines. LF, CRLF and CR line endings are supported; an optional terminal newline

@@ -94,6 +94,7 @@ test.each([
 
 test.each([
   "eslint.config.mjs",
+  "test-assertion.mjs",
   "dependency-policy.mjs",
   "dependency-main.mjs",
 ])("includes executable root configuration %s", (name) => {

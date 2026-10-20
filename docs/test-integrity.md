@@ -10,9 +10,15 @@ symbol does not count.
 
 The gate recognizes exactly these terminal forms:
 
-- a matcher call on `expect(value)`, including promise modifiers such as
-  `resolves` and `rejects`;
-- `expect.assertions(count)` and `expect.hasAssertions()`;
+- a matcher call on `expect(value)`, including `not` and the promise modifiers
+  `resolves` and `rejects`, where the type checker resolves the called member
+  to a declaration in Vitest's assertion types. Inherited object methods such
+  as `toString`, `valueOf` or `hasOwnProperty`, unknown members and matchers
+  declared outside Vitest (including Chai-style chains and locally augmented
+  custom matchers) do not count;
+- `expect.assertions(count)` when `count` is a numeric literal greater than
+  zero, and `expect.hasAssertions()`. A zero, negative, string or computed count
+  does not count, and neither do other `expect` statics such as `expect.soft`;
 - the default callable assertion and named assertion functions exported by
   `node:assert` or `node:assert/strict`, including their imported aliases and
   methods reached through an imported namespace or default binding; and
@@ -33,7 +39,12 @@ count.
 The typed `relentless/test-assertion` ESLint rule enforces this for
 `tests/**/*.ts`. It treats a call as a test declaration when its callee chain
 reaches Vitest's `TestAPI` type, such as `test`, `it`, an imported alias,
-`test.each(table)` or an extended test, and the call has a callable argument.
+`test.each(table)`, `test.for(table)` or an extended test. Only the argument
+that the type checker binds to the resolved overload's `fn` parameter is the
+test body: `test(name, fn, options?)`, `test(name, options, fn)` and
+`test.each(table)(name, fn)`. A function used as the title, an options object
+and `each`/`for` table inputs never supply the assertion. A declaration without
+a body, such as `test(name)`, has nothing to check.
 Suite callbacks such as `describe.each` are not test declarations.
 Behavioral witnesses pass source through native ESLint with the imported
 configuration and require each recognized form to pass and each assertion-free,

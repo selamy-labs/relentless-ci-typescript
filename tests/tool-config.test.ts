@@ -48,6 +48,7 @@ test("native test configuration enrolls all authored executable roots", () => {
     "src/**/*.ts",
     "quality/**/*.ts",
     "eslint.config.mjs",
+    "test-assertion.mjs",
     "dependency-policy.mjs",
     "dependency-main.mjs",
   ]);
