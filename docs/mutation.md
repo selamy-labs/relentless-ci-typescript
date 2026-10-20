@@ -5,9 +5,9 @@ executes every configured Stryker mutant, and validates raw events. The same
 command is intended for local and hosted verification.
 
 The scope is all TypeScript in `src/` and `quality/`, including the Vitest
-adapter, plus the executable root ESLint configuration and dependency-policy
-entry points. Tests are
-exercised rather than mutated. There are no operator or equivalent-mutant
+adapter, plus the executable root ESLint configuration, its test-assertion
+rule module and the dependency-policy entry points. Tests are exercised rather
+than mutated. There are no operator or equivalent-mutant
 exclusions. Incremental reuse is disabled. Stryker works in its isolated
 sandbox.
 

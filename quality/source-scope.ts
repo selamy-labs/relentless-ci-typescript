@@ -18,6 +18,7 @@ export const generatedRoots = new Set([
 ]);
 const rootConfiguration = new Set([
   "eslint.config.mjs",
+  "test-assertion.mjs",
   "dependency-policy.mjs",
   "dependency-main.mjs",
 ]);

@@ -18,7 +18,9 @@ const expected = new Map([
 ]);
 
 test("accepts only complete clean native source and aggregate receipts", () => {
-  verifyDuplicationReport(receipt(expected), expected);
+  expect(() => {
+    verifyDuplicationReport(receipt(expected), expected);
+  }).not.toThrow();
 });
 
 test("no clone-eligible files still needs an exact empty eligible receipt", () => {
@@ -206,12 +208,16 @@ test("accepts exact minima and mixed JavaScript/TypeScript receipts", () => {
     tokens: 50,
     format: "javascript",
   });
-  verifyDuplicationReport(receipt(changed), changed);
+  expect(() => {
+    verifyDuplicationReport(receipt(changed), changed);
+  }).not.toThrow();
 });
 
 test("accepts complete receipts from distinct folders", () => {
   const enrolled = new Map(expected);
   enrolled.delete("/stage/second.ts");
   enrolled.set("/another/second.ts", second);
-  verifyDuplicationReport(receipt(enrolled), enrolled);
+  expect(() => {
+    verifyDuplicationReport(receipt(enrolled), enrolled);
+  }).not.toThrow();
 });

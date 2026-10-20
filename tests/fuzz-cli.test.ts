@@ -52,11 +52,13 @@ test.each(families)(
     fc.assert(
       fc.property(inputs, (input) => {
         const expected = rejection(message);
-        consumerNode(["dist/main.js"], process.cwd(), 10_000, input, {
-          status: expected.code,
-          stdout: expected.stdout,
-          stderr: expected.stderr,
-        });
+        expect(() => {
+          consumerNode(["dist/main.js"], process.cwd(), 10_000, input, {
+            status: expected.code,
+            stdout: expected.stdout,
+            stderr: expected.stderr,
+          });
+        }).not.toThrow();
       }),
       { seed, numRuns: 32 },
     );

@@ -41,10 +41,12 @@ afterEach(() => {
 
 test("all source kinds and counter identities can be complete", () => {
   const names = ["src/a.ts", "quality/config.ts", "eslint.config.mjs"];
-  verifyCoverageReport(
-    Object.fromEntries(names.map((name) => [name, entry(name)])),
-    names,
-  );
+  expect(() => {
+    verifyCoverageReport(
+      Object.fromEntries(names.map((name) => [name, entry(name)])),
+      names,
+    );
+  }).not.toThrow();
 });
 
 test.each([null, [], 1, true, "report", {}, { extra: entry("extra") }])(
@@ -279,7 +281,9 @@ test.each([
     [second]: value.statementMap.statement,
   };
   const s = { [second]: 2, [first]: 1 };
-  verifyCoverageReport({ source: { ...value, statementMap, s } }, ["source"]);
+  expect(() => {
+    verifyCoverageReport({ source: { ...value, statementMap, s } }, ["source"]);
+  }).not.toThrow();
 });
 
 test("a declared branch with no locations or counters cannot pass", () => {

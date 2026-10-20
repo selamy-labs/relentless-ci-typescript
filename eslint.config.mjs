@@ -3,27 +3,16 @@ import tseslint from "typescript-eslint";
 import sonarjs from "eslint-plugin-sonarjs";
 import vitest from "@vitest/eslint-plugin";
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { sep } from "node:path";
-import policy from "./quality/eslint-policy.json" with { type: "json" };
+import { createRequire } from "node:module";
+import { testAssertion, vitestDeclaration } from "./test-assertion.mjs";
 
-/** @typedef {import("typescript").Declaration} Declaration */
+/** @type {import("eslint").Linter.Config[]} */
+const policy = createRequire(import.meta.url)("./quality/eslint-policy.json");
+
 /** @typedef {import("@typescript-eslint/utils").TSESTree.ObjectExpression} ObjectExpression */
 /** @typedef {import("@typescript-eslint/utils").TSESTree.Property} Property */
 /** @typedef {import("@typescript-eslint/utils").TSESTree.MemberExpression} MemberExpression */
 /** @typedef {import("@typescript-eslint/utils").TSESLint.RuleModule<"shortcut", []>} TypedRule */
-
-/** @param {readonly Declaration[] | undefined} declarations */
-function vitestDeclaration(declarations) {
-  return (
-    declarations?.some((declaration) =>
-      declaration
-        .getSourceFile()
-        .fileName.split(sep)
-        .join("/")
-        .includes("/node_modules/vitest/"),
-    ) ?? false
-  );
-}
 
 const modifiers = new Set(["only", "skip", "todo", "fails", "skipIf", "runIf"]);
 const defaults = new Map([
@@ -189,9 +178,20 @@ export default [
   { plugins: { sonarjs } },
   {
     files: ["**/*.ts"],
-    plugins: { relentless: { rules: { "test-execution": testExecution } } },
+    plugins: {
+      relentless: {
+        rules: {
+          "test-execution": testExecution,
+          "test-assertion": testAssertion,
+        },
+      },
+    },
     rules: { "relentless/test-execution": "error" },
   },
-  { files: ["tests/**/*.ts"], plugins: { vitest } },
+  {
+    files: ["tests/**/*.ts"],
+    plugins: { vitest },
+    rules: { "relentless/test-assertion": "error" },
+  },
   { files: ["**/*.mjs"], ...tseslint.configs.disableTypeChecked },
 ];

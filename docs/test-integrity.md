@@ -1,5 +1,59 @@
 # Test discovery and completed results
 
+## Assertion requirement
+
+Every authored `test` or `it` callback must contain a terminal assertion that is
+reachable from that test. The assertion may be in the callback itself or in an
+assertion helper that the callback calls. The checker follows typed symbols
+through import aliases and local helper calls; a matching name with an unrelated
+symbol does not count.
+
+The gate recognizes exactly these terminal forms:
+
+- a matcher call on `expect(value)`, including `not` and the promise modifiers
+  `resolves` and `rejects`, where the type checker resolves the called member
+  to a declaration in Vitest's assertion types. Inherited object methods such
+  as `toString`, `valueOf` or `hasOwnProperty`, unknown members and matchers
+  declared outside Vitest (including Chai-style chains and locally augmented
+  custom matchers) do not count;
+- `expect.assertions(count)` when `count` is a numeric literal greater than
+  zero, and `expect.hasAssertions()`. A zero, negative, string or computed count
+  does not count, and neither do other `expect` statics such as `expect.soft`;
+- the default callable assertion and named assertion functions exported by
+  `node:assert` or `node:assert/strict`, including their imported aliases and
+  methods reached through an imported namespace or default binding; and
+- `fc.assert(property)` from `fast-check`, including aliased namespace imports
+  and an aliased `assert` import, when the property's predicate contains a
+  recognized terminal assertion.
+
+A local helper counts only when the test reaches it by a call and its
+implementation contains one of those forms. Merely constructing a function that
+contains an assertion does not count, including a callback handed to another
+helper; call the assertion directly or through a helper instead. A `catch`
+block swallows failures unless its final statement is `throw`. Assertions in a
+swallowing `catch` block or in the `try` block it guards do not count, whether
+they appear directly, in a helper or in a property predicate; a `finally` block
+still counts. `fc.assert` with an assertion-free property therefore does not
+count.
+
+The typed `relentless/test-assertion` ESLint rule enforces this for
+`tests/**/*.ts`. It treats a call as a test declaration when its callee chain
+reaches Vitest's `TestAPI` type, such as `test`, `it`, an imported alias,
+`test.each(table)`, `test.for(table)` or an extended test. Only the argument
+that the type checker binds to the resolved overload's `fn` parameter is the
+test body: `test(name, fn, options?)`, `test(name, options, fn)` and
+`test.each(table)(name, fn)`. A function used as the title, an options object
+and `each`/`for` table inputs never supply the assertion. A declaration without
+a body, such as `test(name)`, has nothing to check.
+Suite callbacks such as `describe.each` are not test declarations.
+Behavioral witnesses pass source through native ESLint with the imported
+configuration and require each recognized form to pass and each assertion-free,
+swallowed, impostor or uncalled form to fail.
+
+There are no exemptions, annotations, allowlists or assertion-free test modes.
+Add an assertion of the behavior under test, or remove a test that has no
+behavioral claim.
+
 The full verifier removes the previous test receipt before running its check
 registry. The coverage command retains all configured reporters: default, JSON
 and the owned runtime diagnostics reporter. It writes fresh
@@ -36,9 +90,8 @@ A separate
 behavioral witness passes the imported configuration to native ESLint and
 requires its test plugin to reject a focused case. This catches missing plugin
 registration and an incorrect test-file scope during full mutation.
-This gate validates runner results; it does
-not establish that every behavior has a meaningful assertion. Property, coverage
-and mutation gates provide separate evidence for that requirement.
+The assertion requirement complements these runner-result checks; coverage and
+mutation remain separate evidence for the strength of the asserted behavior.
 
 Remediation is to restore the missing suite, remove focus/skip/todo markers,
 repair failures or fix the reporter configuration. Do not reduce discovery scope
